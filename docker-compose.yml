@@ -1,14 +1,24 @@
 version: '3.8'
 
 services:
-  rabbitmq:
-    image: rabbitmq:3.9-management
-    hostname: tad-rabbitmq
-    # volumes:
-    #  - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
-    #  - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-    #  - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
-    #  - ./rabbitmq/logs:/var/log/rabbitmq/log
+  #rabbitmq:
+  #  image: rabbitmq:3.9-management
+  #  hostname: tad-rabbitmq
+  #  # volumes:
+  #  #  - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
+  #  #  - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+  #  #  - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+  #  #  - ./rabbitmq/logs:/var/log/rabbitmq/log
+  #  ports:
+  #    - 5672:5672
+  #    - 15672:15672
+
+  mongo:
+    image: mongo
+    hostname: tad-mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
     ports:
-      - 5672:5672
-      - 15672:15672
+      - 27017:27017

@@ -4,6 +4,7 @@ services:
   rabbitmq:
     image: rabbitmq:3.9-management
     hostname: tad-rabbitmq
+    container_name: tad-rabbitmq
     # volumes:
     #  - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
     #  - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
@@ -16,29 +17,34 @@ services:
   modelsdatabase:
     image: mongo:5.0.6
     hostname: modelsdatabase
+    container_name: modelsdatabase
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_ROOT_USERNAME: tad
+      MONGO_INITDB_ROOT_PASSWORD: tad
     ports:
       - 27017:27017
 
   configurationsdatabase:
-    image: mongo:5.0.6
+    image: postgres:14.2
     hostname: configurationsdatabase
+    container_name: configurationsdatabase
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      POSTGRES_USER: tad
+      POSTGRES_PASSWORD: tad
+      POSTGRES_DB: configurations
     ports:
-      - 27018:27017
+      - 5432:5432
 
   tasksdatabase:
-    image: mongo:5.0.6
+    image: postgres:14.2
     hostname: tasksdatabase
+    container_name: tasksdatabase
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      POSTGRES_USER: tad
+      POSTGRES_PASSWORD: tad
+      POSTGRES_DB: tasks
     ports:
-      - 27019:27017
+      - 5433:5432

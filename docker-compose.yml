@@ -5,11 +5,11 @@ services:
     image: rabbitmq:3.9-management
     hostname: tad-rabbitmq
     container_name: tad-rabbitmq
-    # volumes:
+    volumes:
     #  - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
     #  - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-    #  - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
-    #  - ./rabbitmq/logs:/var/log/rabbitmq/log
+      - ./rabbitmq/data:/var/lib/rabbitmq/
+      - ./rabbitmq/logs:/var/log/rabbitmq
     ports:
       - 5672:5672
       - 15672:15672

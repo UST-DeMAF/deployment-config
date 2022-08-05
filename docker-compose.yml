@@ -81,13 +81,6 @@ services:
         "models-service.url": "http://modelsservice:8081",
         "spring.rabbitmq.host": "rabbitmq"
         }'
-      #SPRING_CONFIGURATIONS-DATASOURCE_JDBCURL: jdbc:postgresql://configurationsdatabase:5432/configurations
-      #SPRING_CONFIGURATIONS-DATASOURCE_USERNAME: tad
-      #SPRING_CONFIGURATIONS-DATASOURCE_PASSWORD: tad
-      #SPRING_TASKS_DATASOURCE-JDBCURL: jdbc:postgresql://tasksdatabase:5433/tasks
-      #SPRING_TASKS_DATASOURCE-USERNAME: tad
-      #SPRING_TASKS_DATASOURCE-PASSWORD: tad
-      #MODELS-SERVICE_URL: http://modelsservice:8081
     ports:
       - 8080:8080
 

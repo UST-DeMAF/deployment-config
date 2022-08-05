@@ -1,10 +1,20 @@
 version: '3.8'
 
+volumes:
+  demaf: 
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ./volume
+
 services:
+
+  # Message Broker
   rabbitmq:
     image: rabbitmq:3.9-management
-    hostname: tad-rabbitmq
-    container_name: tad-rabbitmq
+    hostname: demaf-rabbitmq
+    container_name: demaf-rabbitmq
     volumes:
     #  - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
     #  - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
@@ -14,6 +24,7 @@ services:
       - 5672:5672
       - 15672:15672
 
+  # Databases
   modelsdatabase:
     image: mongo:5.0.6
     hostname: modelsdatabase
@@ -48,3 +59,112 @@ services:
       POSTGRES_DB: tasks
     ports:
       - 5433:5432
+
+  # Core Services
+  analysismanager:
+    image: well5a/analysis-manager:latest
+    hostname: analysismanager
+    container_name: analysismanager
+    depends_on:
+      - rabbitmq
+      - configurationsdatabase
+      - tasksdatabase
+    restart: always
+    environment:
+      SPRING_APPLICATION_JSON: '{
+        "spring.configurations-datasource.jdbcUrl": "jdbc:postgresql://configurationsdatabase:5432/configurations",
+        "spring.configurations-datasource.username": "tad",
+        "spring.configurations-datasource.password": "tad",
+        "spring.tasks-datasource.jdbcUrl": "jdbc:postgresql://tasksdatabase:5432/tasks",
+        "spring.tasks-datasource.username": "tad",
+        "spring.tasks-datasource.password": "tad",
+        "models-service.url": "http://modelsservice:8081",
+        "spring.rabbitmq.host": "rabbitmq"
+        }'
+      #SPRING_CONFIGURATIONS-DATASOURCE_JDBCURL: jdbc:postgresql://configurationsdatabase:5432/configurations
+      #SPRING_CONFIGURATIONS-DATASOURCE_USERNAME: tad
+      #SPRING_CONFIGURATIONS-DATASOURCE_PASSWORD: tad
+      #SPRING_TASKS_DATASOURCE-JDBCURL: jdbc:postgresql://tasksdatabase:5433/tasks
+      #SPRING_TASKS_DATASOURCE-USERNAME: tad
+      #SPRING_TASKS_DATASOURCE-PASSWORD: tad
+      #MODELS-SERVICE_URL: http://modelsservice:8081
+    ports:
+      - 8080:8080
+
+  modelsservice:
+    image: well5a/models-service:latest
+    hostname: modelsservice
+    container_name: modelsservice
+    depends_on:
+      - modelsdatabase
+    restart: always
+    environment:
+      SPRING_DATA_MONGODB_USERNAME: tad
+      SPRING_DATA_MONGODB_PASSWORD: tad
+      SPRING_DATA_MONGODB_DATABASE: modelsdatabase
+      SPRING_DATA_MONGODB_HOST: modelsdatabase
+      SPRING_DATA_MONGODB_PORT: 27017
+      TADM_OUTPUT_DIRECTORY: /usr/share/tadms
+    volumes:
+      - demaf:/usr/share
+    ports:
+      - 8081:8080
+
+  # Plugins
+  bashplugin:
+    image: well5a/bash-plugin:latest
+    hostname: bashplugin
+    container_name: bashplugin
+    depends_on:
+      - analysismanager
+    restart: always
+    environment:
+      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS-SERVICE_URL: http://modelsservice:8081
+      SPRING_RABBITMQ_HOST: rabbitmq
+    volumes:
+      - demaf:/usr/share
+
+  terraformplugin:
+    image: well5a/terraform-plugin:latest
+    hostname: terraformplugin
+    container_name: terraformplugin
+    depends_on:
+      - analysismanager
+    restart: always
+    environment:
+      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS-SERVICE_URL: http://modelsservice:8081
+      SPRING_RABBITMQ_HOST: rabbitmq
+    volumes:
+      - demaf:/usr/share
+      
+  kubernetesplugin:
+    image: well5a/kubernetes-plugin:latest
+    hostname: kubernetesplugin
+    container_name: kubernetesplugin
+    depends_on:
+      - analysismanager
+    restart: always
+    environment:
+      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS-SERVICE_URL: http://modelsservice:8081
+      SPRING_RABBITMQ_HOST: rabbitmq
+    volumes:
+      - demaf:/usr/share
+      
+  helmplugin:
+    image: well5a/helm-plugin:latest
+    hostname: helmplugin
+    container_name: helmplugin
+    depends_on:
+      - analysismanager
+    restart: always
+    environment:
+      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS-SERVICE_URL: http://modelsservice:8081
+      SPRING_RABBITMQ_HOST: rabbitmq
+      KUBE_OUTPUT_DIRECTORY: /usr/share/helmTemplates
+    volumes:
+      - demaf:/usr/share
+      - ./helmPlugin/helm:/usr/local/bin/helm

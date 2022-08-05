@@ -1,1 +1,9 @@
 /rabbitmq
+
+/volume/**
+!/volume/helmTemplates/
+/volume/helmTemplates/**
+!/volume/helmTemplates/README.md
+!/volume/tadms/
+/volume/tadms/**
+!/volume/tadms/README.md

@@ -1,0 +1,1 @@
+Directory where the helm plugin stores Kubernetes configuration files for the kubernetes plugin to pickup.

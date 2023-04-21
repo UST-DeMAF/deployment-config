@@ -3,12 +3,17 @@
 This repository provides a deployment model for deploying the DeMAF.
 
 ## Prerequisites
-Installation of Docker and Docker Compose required, see https://docs.docker.com/compose/install/
+Installation of Docker and Docker Compose are required, see https://docs.docker.com/compose/install/
 
 ## Deploy Locally
 The DeMAF can be deployed on the local machine by executing
 ```shell
-docker-compose up -d
+docker-compose pull && docker-compose up -d
+```
+
+Shutdown with
+```shell
+docker-compose down
 ```
 
 ## Using the DeMAF
@@ -40,3 +45,10 @@ You can then input the technology-specific deployment model by providing the loc
 
 ### Output
 The DeMAF outputs the generated technology-agnostic deployment model under ./volume/tadms or the path that you configured.
+
+## Example
+* Go to the volume folder
+* Clone the Example Deployment Model: ```git clone git@github.com:Well5a/kube.git```
+* Go back to the base directory and start the DeMAF: ```docker-compose pull && docker-compose up -d```
+* Start the DeMAF Shell
+* In the DeMAF Shell, execute the command ```transform --location file:/usr/share/kube/azure-start.sh --technology bash --commands ./azure-start.sh```

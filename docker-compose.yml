@@ -131,21 +131,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
     volumes:
       - demaf:/usr/share
-      
-  kubernetesplugin:
-    image: well5a/kubernetes-plugin:latest
-    hostname: kubernetesplugin
-    container_name: kubernetesplugin
-    depends_on:
-      - analysismanager
-    restart: always
-    environment:
-      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
-      MODELS-SERVICE_URL: http://modelsservice:8081
-      SPRING_RABBITMQ_HOST: rabbitmq
-    volumes:
-      - demaf:/usr/share
-      
+
   helmplugin:
     image: well5a/helm-plugin:latest
     hostname: helmplugin
@@ -160,4 +146,34 @@ services:
       KUBE_OUTPUT_DIRECTORY: /usr/share/helmTemplates
     volumes:
       - demaf:/usr/share
-      - ./helmPlugin/helm:/usr/local/bin/helm
+      - ./helmPlugin/helm:/usr/local/bin/helm  
+       
+  kubernetesplugin:
+    image: well5a/kubernetes-mps-plugin:latest
+    hostname: kubernetesplugin
+    container_name: kubernetesplugin
+    depends_on:
+      - analysismanager
+    restart: always
+    environment:
+      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS-SERVICE_URL: http://modelsservice:8081
+      SPRING_RABBITMQ_HOST: rabbitmq
+    volumes:
+      - demaf:/usr/share
+
+#  kubernetesplugin:
+#    image: well5a/kubernetes-plugin:latest
+#    hostname: kubernetesplugin
+#    container_name: kubernetesplugin
+#    depends_on:
+#      - analysismanager
+#    restart: always
+#    environment:
+#      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+#      MODELS-SERVICE_URL: http://modelsservice:8081
+#      SPRING_RABBITMQ_HOST: rabbitmq
+#    volumes:
+#      - demaf:/usr/share
+      
+  

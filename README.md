@@ -50,5 +50,5 @@ The DeMAF outputs the generated technology-agnostic deployment model under ./vol
 * Go to the volume folder
 * Clone the Example Deployment Model: ```git clone git@github.com:Well5a/kube.git```
 * Go back to the base directory and start the DeMAF: ```docker-compose pull && docker-compose up -d```
-* Start the DeMAF Shell
+* Start the [DeMAF Shell](https://github.com/UST-DeMAF/demaf-shell)
 * In the DeMAF Shell, execute the command ```transform --location file:/usr/share/kube/azure-start.sh --technology bash --commands ./azure-start.sh```

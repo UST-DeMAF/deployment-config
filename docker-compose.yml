@@ -102,66 +102,65 @@ services:
       - demaf:/usr/share
     ports:
       - 8081:8081
-
+      
   # Plugins
-#  bashplugin:
-#    image: well5a/bash-plugin:latest
-#    hostname: bashplugin
-#    container_name: bashplugin
-#    depends_on:
-#      - analysismanager
-#    restart: always
-#    environment:
-#      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
-#      MODELS-SERVICE_URL: http://modelsservice:8081
-#      SPRING_RABBITMQ_HOST: rabbitmq
-#    volumes:
-#      - demaf:/usr/share
-#
-#  terraformplugin:
-#    image: well5a/terraform-plugin:latest
-#    hostname: terraformplugin
-#    container_name: terraformplugin
-#    depends_on:
-#      - analysismanager
-#    restart: always
-#    environment:
-#      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
-#      MODELS-SERVICE_URL: http://modelsservice:8081
-#      SPRING_RABBITMQ_HOST: rabbitmq
-#    volumes:
-#      - demaf:/usr/share
-#
-#  helmplugin:
-#    image: well5a/helm-plugin:latest
-#    hostname: helmplugin
-#    container_name: helmplugin
-#    depends_on:
-#      - analysismanager
-#    restart: always
-#    environment:
-#      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
-#      MODELS-SERVICE_URL: http://modelsservice:8081
-#      SPRING_RABBITMQ_HOST: rabbitmq
-#      KUBE_OUTPUT_DIRECTORY: /usr/share/helmTemplates
-#    volumes:
-#      - demaf:/usr/share
-#      - ./helmPlugin/helm:/usr/local/bin/helm  
-#       
-#  kubernetesplugin:
-#    image: well5a/kubernetes-mps-plugin:latest
-#    hostname: kubernetesplugin
-#    container_name: kubernetesplugin
-#    depends_on:
-#      - analysismanager
-#    restart: always
-#    environment:
-#      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
-#      MODELS-SERVICE_URL: http://modelsservice:8081
-#      SPRING_RABBITMQ_HOST: rabbitmq
-#    volumes:
-#      - demaf:/usr/share
-#
+  bashplugin:
+    image: well5a/bash-plugin:latest
+    hostname: bashplugin
+    container_name: bashplugin
+    depends_on:
+      - analysismanager
+    restart: always
+    environment:
+      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS-SERVICE_URL: http://modelsservice:8081
+      SPRING_RABBITMQ_HOST: rabbitmq
+    volumes:
+      - demaf:/usr/share
+
+  terraformplugin:
+    image: well5a/terraform-plugin:latest
+    hostname: terraformplugin
+    container_name: terraformplugin
+    depends_on:
+      - analysismanager
+    restart: always
+    environment:
+      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS-SERVICE_URL: http://modelsservice:8081
+      SPRING_RABBITMQ_HOST: rabbitmq
+    volumes:
+      - demaf:/usr/share
+
+  helmplugin:
+    image: well5a/helm-plugin:latest
+    hostname: helmplugin
+    container_name: helmplugin
+    depends_on:
+      - analysismanager
+    restart: always
+    environment:
+      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS-SERVICE_URL: http://modelsservice:8081
+      SPRING_RABBITMQ_HOST: rabbitmq
+      KUBE_OUTPUT_DIRECTORY: /usr/share/helmTemplates
+    volumes:
+      - demaf:/usr/share
+      - ./helmPlugin/helm:/usr/local/bin/helm  
+
+  kubernetesplugin:
+    image: well5a/kubernetes-mps-plugin:latest
+    hostname: kubernetesplugin
+    container_name: kubernetesplugin
+    depends_on:
+      - analysismanager
+    restart: always
+    environment:
+      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS-SERVICE_URL: http://modelsservice:8081
+      SPRING_RABBITMQ_HOST: rabbitmq
+    volumes:
+      - demaf:/usr/share
 #  kubernetesplugin:
 #    image: well5a/kubernetes-plugin:latest
 #    hostname: kubernetesplugin

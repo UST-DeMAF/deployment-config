@@ -150,8 +150,8 @@ services:
         condition: service_healthy
     restart: always
     environment:
-      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
-      MODELS-SERVICE_URL: http://modelsservice:8081
+      ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS_SERVICE_URL: http://modelsservice:8081
       SPRING_RABBITMQ_HOST: rabbitmq
     volumes:
       - demaf:/usr/share
@@ -174,8 +174,8 @@ services:
         condition: service_healthy
     restart: always
     environment:
-      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
-      MODELS-SERVICE_URL: http://modelsservice:8081
+      ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS_SERVICE_URL: http://modelsservice:8081
       SPRING_RABBITMQ_HOST: rabbitmq
       RUNPROVIDERPOSTPROCESSORS: false # default true
     volumes:
@@ -199,8 +199,8 @@ services:
         condition: service_healthy
     restart: always
     environment:
-      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
-      MODELS-SERVICE_URL: http://modelsservice:8081
+      ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS_SERVICE_URL: http://modelsservice:8081
       SPRING_RABBITMQ_HOST: rabbitmq
     volumes:
       - demaf:/usr/share
@@ -223,8 +223,8 @@ services:
         condition: service_healthy
     restart: always
     environment:
-      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
-      MODELS-SERVICE_URL: http://modelsservice:8081
+      ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS_SERVICE_URL: http://modelsservice:8081
       SPRING_RABBITMQ_HOST: rabbitmq
       KUBE_OUTPUT_DIRECTORY: /usr/share/helmTemplates
     volumes:
@@ -249,8 +249,8 @@ services:
         condition: service_healthy
     restart: always
     environment:
-      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
-      MODELS-SERVICE_URL: http://modelsservice:8081
+      ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS_SERVICE_URL: http://modelsservice:8081
       SPRING_RABBITMQ_HOST: rabbitmq
     volumes:
       - demaf:/usr/share

@@ -238,28 +238,27 @@ services:
       timeout: 5s
       retries: 3
 
-  # ansibleplugin:
-  #   image: well5a/ansible-mps-plugin:testing
-  #   hostname: ansibleplugin
-  #   container_name: ansibleplugin
-  #   depends_on:
-  #     analysismanager:
-  #       condition: service_healthy
-  #     rabbitmq:
-  #       condition: service_healthy
-  #   restart: always
-  #   environment:
-  #     ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
-  #     MODELS-SERVICE_URL: http://modelsservice:8081
-  #     SPRING_RABBITMQ_HOST: rabbitmq
-  #   volumes:
-  #     - demaf:/usr/share
-  #   ports:
-  #     - 8087:8084 # FIXME: change port to 8087 as 8084 is already in use by terraformplugin
-  #   # FIXME: add curl to container
-  #   # healthcheck:
-  #   #   test: ["CMD-SHELL", "curl -fs http://localhost:8084/actuator/health | grep 'UP' || exit 1"]
-  #   #   interval: 10s
-  #   #   timeout: 5s
-  #   #   retries: 3
+  ansibleplugin:
+    image: ghcr.io/ust-demaf/ansible-mps-plugin:testing # using the ghcr
+    hostname: ansibleplugin
+    container_name: ansibleplugin
+    depends_on:
+      analysismanager:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+    environment:
+      ANALYSIS-MANAGER_PLUGIN-REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS-SERVICE_URL: http://modelsservice:8081
+      SPRING_RABBITMQ_HOST: rabbitmq
+    volumes:
+      - demaf:/usr/share
+    ports:
+      - 8087:8087
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8087/actuator/health | grep 'UP' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
       

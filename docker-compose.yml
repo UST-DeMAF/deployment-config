@@ -140,7 +140,7 @@ services:
       
   # Plugins
   bashplugin:
-    image: well5a/bash-plugin:latest
+    image: well5a/bash-plugin:testing
     hostname: bashplugin
     container_name: bashplugin
     depends_on:
@@ -157,15 +157,14 @@ services:
       - demaf:/usr/share
     ports:
       - 8083:8083
-    # FIXME: add curl to container
-    # healthcheck:
-    #   test: ["CMD-SHELL", "curl -fs http://localhost:8083/actuator/health | grep 'UP' || exit 1"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 3
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8083/actuator/health | grep 'UP' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   terraformplugin:
-    image: well5a/terraform-mps-plugin:latest
+    image: well5a/terraform-mps-plugin:testing
     hostname: terraformplugin
     container_name: terraformplugin
     depends_on:
@@ -183,15 +182,14 @@ services:
       - demaf:/usr/share
     ports:
       - 8084:8084
-    # FIXME: add curl to container
-    # healthcheck:
-    #   test: ["CMD-SHELL", "curl -fs http://localhost:8084/actuator/health | grep 'UP' || exit 1"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 3
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8084/actuator/health | grep 'UP' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   kubernetesplugin:
-    image: well5a/kubernetes-mps-plugin:latest
+    image: well5a/kubernetes-mps-plugin:testing
     hostname: kubernetesplugin
     container_name: kubernetesplugin
     depends_on:
@@ -208,15 +206,14 @@ services:
       - demaf:/usr/share
     ports:
       - 8085:8085
-    # FIXME: add curl to container
-    # healthcheck:
-    #   test: ["CMD-SHELL", "curl -fs http://localhost:8085/actuator/health | grep 'UP' || exit 1"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 3
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8085/actuator/health | grep 'UP' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   helmplugin:
-    image: well5a/helm-plugin:latest
+    image: well5a/helm-plugin:testing
     hostname: helmplugin
     container_name: helmplugin
     depends_on:
@@ -235,12 +232,11 @@ services:
       - ./helmPlugin/helm:/usr/local/bin/helm
     ports:
       - 8086:8086
-    # FIXME: add curl to container
-    # healthcheck:
-    #   test: ["CMD-SHELL", "curl -fs http://localhost:8086/actuator/health | grep 'UP' || exit 1"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 3
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8086/actuator/health | grep 'UP' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   # ansibleplugin:
   #   image: well5a/ansible-mps-plugin:testing

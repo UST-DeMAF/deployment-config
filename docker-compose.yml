@@ -108,8 +108,8 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "curl -fs http://localhost:8080/actuator/health | grep 'UP' || exit 1"]
       interval: 10s
-      timeout: 5s
-      retries: 3
+      timeout: 10s
+      retries: 5
 
   modelsservice:
     image: well5a/models-service:latest

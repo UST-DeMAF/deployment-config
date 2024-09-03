@@ -15,9 +15,7 @@ services:
     hostname: demaf-rabbitmq
     container_name: demaf-rabbitmq
     volumes:
-    #  - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
-    #  - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-      - rabbitmq_data:/var/lib/rabbitmq/
+      - rabbitmq_data:/var/lib/rabbitmq
       - rabbitmq_logs:/var/log/rabbitmq
     ports:
       - 5672:5672

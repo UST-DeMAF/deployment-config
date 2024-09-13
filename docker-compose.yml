@@ -79,7 +79,7 @@ services:
 
   # Core Services
   analysismanager:
-    image: well5a/analysis-manager:testing
+    image: ghcr.io/ust-demaf/analysis-manager:testing
     hostname: analysismanager
     container_name: analysismanager
     depends_on:
@@ -110,7 +110,7 @@ services:
       retries: 5
 
   modelsservice:
-    image: well5a/models-service:latest
+    image: ghcr.io/ust-demaf/models-service:latest
     hostname: modelsservice
     container_name: modelsservice
     depends_on:
@@ -138,7 +138,7 @@ services:
       
   # Plugins
   bashplugin:
-    image: well5a/bash-plugin:testing
+    image: ghcr.io/ust-demaf/bash-plugin:testing
     hostname: bashplugin
     container_name: bashplugin
     depends_on:
@@ -162,7 +162,7 @@ services:
       retries: 3
 
   terraformplugin:
-    image: well5a/terraform-mps-plugin:testing
+    image: ghcr.io/ust-demaf/terraform-mps-plugin:testing
     hostname: terraformplugin
     container_name: terraformplugin
     depends_on:
@@ -187,7 +187,7 @@ services:
       retries: 3
 
   kubernetesplugin:
-    image: well5a/kubernetes-mps-plugin:testing
+    image: ghcr.io/ust-demaf/kubernetes-mps-plugin:testing
     hostname: kubernetesplugin
     container_name: kubernetesplugin
     depends_on:
@@ -211,7 +211,7 @@ services:
       retries: 3
 
   helmplugin:
-    image: well5a/helm-plugin:testing
+    image: ghcr.io/ust-demaf/helm-plugin:testing
     hostname: helmplugin
     container_name: helmplugin
     depends_on:

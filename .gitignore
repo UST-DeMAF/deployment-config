@@ -7,3 +7,12 @@
 !/volume/tadms/
 /volume/tadms/**
 !/volume/tadms/README.md
+
+/winery/graphviz/**
+/winery/nodetypes/*
+!/winery/nodetypes/tosca.nodes/
+!/winery/nodetypes/tosca.nodes.Abstract/
+!/winery/nodetypes/tosca.nodes.Container/
+!/winery/nodetypes/tosca.nodes.Storage/
+/winery/servicetemplates/**
+!/winery/servicetemplates/.gitkeep

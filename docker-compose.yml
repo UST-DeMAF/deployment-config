@@ -85,7 +85,7 @@ services:
 
   # Core Services
   analysismanager:
-    image: ghcr.io/ust-demaf/analysis-manager:testing
+    image: ghcr.io/ust-demaf/analysis-manager:latest
     hostname: analysismanager
     container_name: analysismanager
     depends_on:
@@ -162,7 +162,7 @@ services:
   
   # Plugins
   bashplugin:
-    image: ghcr.io/ust-demaf/bash-plugin:testing
+    image: ghcr.io/ust-demaf/bash-plugin:latest
     hostname: bashplugin
     container_name: bashplugin
     depends_on:
@@ -186,7 +186,7 @@ services:
       retries: 3
 
   terraformplugin:
-    image: ghcr.io/ust-demaf/terraform-mps-plugin:testing
+    image: ghcr.io/ust-demaf/terraform-mps-plugin:latest
     hostname: terraformplugin
     container_name: terraformplugin
     depends_on:
@@ -199,7 +199,7 @@ services:
       ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL: http://analysismanager:8080/plugin-registration
       MODELS_SERVICE_URL: http://modelsservice:8081
       SPRING_RABBITMQ_HOST: rabbitmq
-      RUNPROVIDERPOSTPROCESSORS: false # default true
+      RUNPROVIDERPOSTPROCESSORS: true # default true
     volumes:
       - demaf:/usr/share
     ports:
@@ -211,7 +211,7 @@ services:
       retries: 3
 
   kubernetesplugin:
-    image: ghcr.io/ust-demaf/kubernetes-mps-plugin:testing
+    image: ghcr.io/ust-demaf/kubernetes-mps-plugin:latest
     hostname: kubernetesplugin
     container_name: kubernetesplugin
     depends_on:
@@ -235,7 +235,7 @@ services:
       retries: 3
 
   helmplugin:
-    image: ghcr.io/ust-demaf/helm-plugin:testing
+    image: ghcr.io/ust-demaf/helm-plugin:latest
     hostname: helmplugin
     container_name: helmplugin
     depends_on:
@@ -261,7 +261,7 @@ services:
       retries: 3
 
   ansibleplugin:
-    image: ghcr.io/ust-demaf/ansible-mps-plugin:testing # using the ghcr
+    image: ghcr.io/ust-demaf/ansible-mps-plugin:latest
     hostname: ansibleplugin
     container_name: ansibleplugin
     depends_on:
@@ -285,7 +285,7 @@ services:
       retries: 3
 
   visualizationservice:
-    image: ghcr.io/ust-demaf/visualization-service:testing
+    image: ghcr.io/ust-demaf/visualization-service:latest
     hostname: visualizationservice
     container_name: visualizationservice
     depends_on:

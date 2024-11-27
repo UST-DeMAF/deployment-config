@@ -28,6 +28,8 @@ spec:
           livenessProbe:
             exec:
               command:
+                - /bin/sh
+                - -c
                 - curl -fs http://localhost:8080/actuator/health | grep 'UP' || exit 1
             failureThreshold: 5
             periodSeconds: 10

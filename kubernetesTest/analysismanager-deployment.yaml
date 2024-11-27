@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Windows\system32\kompose.exe convert
+    kompose.version: 1.34.0 (cbf2835db)
+  labels:
+    io.kompose.service: analysismanager
+  name: analysismanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: analysismanager
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Windows\system32\kompose.exe convert
+        kompose.version: 1.34.0 (cbf2835db)
+      labels:
+        io.kompose.service: analysismanager
+    spec:
+      containers:
+        - env:
+            - name: SPRING_APPLICATION_JSON
+              value: '{ "spring.configurations-datasource.jdbcUrl": "jdbc:postgresql://configurationsdatabase:5432/configurations", "spring.configurations-datasource.username": "tad", "spring.configurations-datasource.password": "tad", "spring.tasks-datasource.jdbcUrl": "jdbc:postgresql://tasksdatabase:5432/tasks", "spring.tasks-datasource.username": "tad", "spring.tasks-datasource.password": "tad", "models-service.url": "http://modelsservice:8081", "spring.rabbitmq.host": "rabbitmq" }'
+          image: ghcr.io/ust-demaf/analysis-manager:latest
+          livenessProbe:
+            exec:
+              command:
+                - curl -fs http://localhost:8080/actuator/health | grep 'UP' || exit 1
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 10
+          name: analysismanager
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+      hostname: analysismanager
+      restartPolicy: Always

@@ -61,7 +61,7 @@ services:
     ports:
       - 5432:5432
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "tad"]
+      test: ["CMD", "pg_isready", "-U", "tad", "-d", "configurations"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -78,7 +78,7 @@ services:
     ports:
       - 5433:5432
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "tad"]
+      test: ["CMD", "pg_isready", "-U", "tad", "-d", "tasks"]
       interval: 10s
       timeout: 5s
       retries: 3

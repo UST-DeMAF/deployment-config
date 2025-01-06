@@ -16,7 +16,8 @@ volumes:
 
 services:
   web-ui:
-    build: ../web-ui
+#    image: ghcr.io/ust-demaf/web-ui:testing
+    build: ../web-ui #TODO: ADD build and publish
     hostname: web-ui
     container_name: web-ui
     volumes:
@@ -96,7 +97,7 @@ services:
 
   # Core Services
   analysismanager:
-    image: ghcr.io/ust-demaf/analysis-manager:latest
+    image: ghcr.io/ust-demaf/analysis-manager:testing
     hostname: analysismanager
     container_name: analysismanager
     depends_on:

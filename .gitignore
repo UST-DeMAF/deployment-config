@@ -16,3 +16,5 @@
 !/winery/nodetypes/tosca.nodes.Storage/
 /winery/servicetemplates/**
 !/winery/servicetemplates/.gitkeep
+
+.DS_Store

@@ -322,6 +322,7 @@ services:
       ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL: http://analysismanager:8080/plugin-registration
       MODELS_SERVICE_URL: http://modelsservice:8081
       SPRING_RABBITMQ_HOST: rabbitmq
+      WINERY_PATH: /var/repository
     volumes:
       - demaf:/usr/share
       - winery:/var/repository

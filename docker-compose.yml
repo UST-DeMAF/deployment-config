@@ -1,5 +1,5 @@
 volumes:
-  demaf: 
+  demaf:
     driver: local
     driver_opts:
       type: 'none'
@@ -159,7 +159,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-  
+
   # Plugins
   #bashplugin:
   #  image: ghcr.io/ust-demaf/bash-plugin:latest
@@ -284,29 +284,29 @@ services:
       timeout: 5s
       retries: 3
 
-  #dockerplugin:
-  #  image: ghcr.io/ust-demaf/docker-plugin:latest
-  #  hostname: dockerplugin
-  #  container_name: dockerplugin
-  #  depends_on:
-  #    analysismanager:
-  #      condition: service_healthy
-  #    rabbitmq:
-  #      condition: service_healthy
-  #  restart: always
-  #  environment:
-  #    ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL: http://analysismanager:8080/plugin-registration
-  #    MODELS_SERVICE_URL: http://modelsservice:8081
-  #    SPRING_RABBITMQ_HOST: rabbitmq
-  #  volumes:
-  #    - demaf:/usr/share
-  #  ports:
-  #    - 8089:8089
-  #  healthcheck:
-  #    test: ["CMD-SHELL", "curl -fs http://localhost:8089/actuator/health | grep 'UP' || exit 1"]
-  #    interval: 10s
-  #    timeout: 5s
-  #    retries: 3
+  dockerplugin:
+    image: ghcr.io/ust-demaf/docker-plugin:latest
+    hostname: dockerplugin
+    container_name: dockerplugin
+    depends_on:
+      analysismanager:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+    environment:
+      ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL: http://analysismanager:8080/plugin-registration
+      MODELS_SERVICE_URL: http://modelsservice:8081
+      SPRING_RABBITMQ_HOST: rabbitmq
+    volumes:
+      - demaf:/usr/share
+    ports:
+      - 8089:8089
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8089/actuator/health | grep 'UP' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   visualizationservice:
     image: visualization-service:testing
@@ -325,11 +325,13 @@ services:
       ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL: http://analysismanager:8080/plugin-registration
       MODELS_SERVICE_URL: http://modelsservice:8081
       SPRING_RABBITMQ_HOST: rabbitmq
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
     volumes:
       - demaf:/usr/share
       - winery:/var/repository
     ports:
       - 8082:8082
+      - 5005:5005
     healthcheck:
       test: [ "CMD-SHELL", "curl -fs http://localhost:8082/actuator/health | grep 'UP' || exit 1" ]
       interval: 10s

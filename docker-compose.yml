@@ -321,7 +321,7 @@ services:
       retries: 3
 
   visualizationservice:
-    image: ghcr.io/ust-demaf/visualization-service:latest
+    image: ghcr.io/ust-demaf/visualization-service:testing
     hostname: visualizationservice
     container_name: visualizationservice
     depends_on:

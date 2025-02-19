@@ -96,7 +96,7 @@ services:
 
   # Core Services
   analysismanager:
-    image: ghcr.io/ust-demaf/analysis-manager:latest
+    image: ghcr.io/ust-demaf/analysis-manager:testing #TODO: Swap back to latest
     hostname: analysismanager
     container_name: analysismanager
     depends_on:

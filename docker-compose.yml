@@ -15,6 +15,17 @@ volumes:
       device: ./winery
 
 services:
+  web-ui:
+    image: ghcr.io/ust-demaf/web-ui:testing #TODO: Change to latest once done
+#    build: ../web-ui #Build locally
+    hostname: web-ui
+    container_name: web-ui
+    volumes:
+      - demaf:/usr/share
+    ports:
+      - "8079:8079"
+      - "3000:3000"
+    restart: unless-stopped
   # Message Broker
   rabbitmq:
     image: rabbitmq:3.9-management

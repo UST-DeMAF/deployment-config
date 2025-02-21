@@ -127,7 +127,7 @@ services:
       retries: 5
 
   modelsservice:
-    image: ghcr.io/ust-demaf/models-service:latest
+    image: ghcr.io/ust-demaf/models-service:testing
     hostname: modelsservice
     container_name: modelsservice
     depends_on:
@@ -173,7 +173,7 @@ services:
   
   # Plugins
   bashplugin:
-    image: ghcr.io/ust-demaf/bash-plugin:latest
+    image: ghcr.io/ust-demaf/bash-plugin:testing
     hostname: bashplugin
     container_name: bashplugin
     depends_on:
@@ -222,7 +222,7 @@ services:
       retries: 3
 
   kubernetesplugin:
-    image: ghcr.io/ust-demaf/kubernetes-mps-plugin:latest
+    image: ghcr.io/ust-demaf/kubernetes-mps-plugin:testing
     hostname: kubernetesplugin
     container_name: kubernetesplugin
     depends_on:
@@ -246,7 +246,7 @@ services:
       retries: 3
 
   helmplugin:
-    image: ghcr.io/ust-demaf/helm-plugin:latest
+    image: ghcr.io/ust-demaf/helm-plugin:testing
     hostname: helmplugin
     container_name: helmplugin
     depends_on:
@@ -272,7 +272,7 @@ services:
       retries: 3
 
   ansibleplugin:
-    image: ghcr.io/ust-demaf/ansible-mps-plugin:latest
+    image: ghcr.io/ust-demaf/ansible-mps-plugin:testing
     hostname: ansibleplugin
     container_name: ansibleplugin
     depends_on:
@@ -296,7 +296,7 @@ services:
       retries: 3
 
   dockerplugin:
-    image: ghcr.io/ust-demaf/docker-plugin:latest
+    image: ghcr.io/ust-demaf/docker-plugin:testing
     hostname: dockerplugin
     container_name: dockerplugin
     depends_on:
@@ -320,7 +320,7 @@ services:
       retries: 3
 
   visualizationservice:
-    image: ghcr.io/ust-demaf/visualization-service:latest
+    image: ghcr.io/ust-demaf/visualization-service:testing
     hostname: visualizationservice
     container_name: visualizationservice
     depends_on:

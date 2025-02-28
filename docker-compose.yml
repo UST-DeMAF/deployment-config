@@ -20,12 +20,18 @@ services:
 #    build: ../web-ui #Build locally
     hostname: web-ui
     container_name: web-ui
+    restart: always
     volumes:
       - demaf:/usr/share
     ports:
       - "8079:8079"
       - "3000:3000"
-    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8079/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   # Message Broker
   rabbitmq:
     image: rabbitmq:3.9-management

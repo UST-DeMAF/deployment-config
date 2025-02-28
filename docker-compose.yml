@@ -20,6 +20,23 @@ services:
 #    build: ../web-ui #Build locally
     hostname: web-ui
     container_name: web-ui
+    depends_on:
+      ansibleplugin:
+        condition: service_healthy
+      bashplugin:
+        condition: service_healthy
+      dockerplugin:
+        condition: service_healthy
+      helmplugin:
+        condition: service_healthy
+      kubernetesplugin:
+        condition: service_healthy
+      terraformplugin:
+        condition: service_healthy
+      visualizationservice:
+        condition: service_healthy
+      winery:
+        condition: service_healthy
     restart: always
     volumes:
       - demaf:/usr/share

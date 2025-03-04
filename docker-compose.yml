@@ -16,7 +16,7 @@ volumes:
 
 services:
   web-ui:
-    image: ghcr.io/ust-demaf/web-ui:testing #TODO: Change to latest once done
+    image: ghcr.io/ust-demaf/web-ui:latest
 #    build: ../web-ui #Build locally
     hostname: web-ui
     container_name: web-ui
@@ -119,7 +119,7 @@ services:
 
   # Core Services
   analysismanager:
-    image: ghcr.io/ust-demaf/analysis-manager:testing #TODO: Swap back to latest
+    image: ghcr.io/ust-demaf/analysis-manager:latest
     hostname: analysismanager
     container_name: analysismanager
     depends_on:
@@ -150,7 +150,7 @@ services:
       retries: 5
 
   modelsservice:
-    image: ghcr.io/ust-demaf/models-service:testing
+    image: ghcr.io/ust-demaf/models-service:latest
     hostname: modelsservice
     container_name: modelsservice
     depends_on:
@@ -196,7 +196,7 @@ services:
   
   # Plugins
   bashplugin:
-    image: ghcr.io/ust-demaf/bash-plugin:testing
+    image: ghcr.io/ust-demaf/bash-plugin:latest
     hostname: bashplugin
     container_name: bashplugin
     depends_on:
@@ -245,7 +245,7 @@ services:
       retries: 3
 
   kubernetesplugin:
-    image: ghcr.io/ust-demaf/kubernetes-mps-plugin:testing
+    image: ghcr.io/ust-demaf/kubernetes-mps-plugin:latest
     hostname: kubernetesplugin
     container_name: kubernetesplugin
     depends_on:
@@ -269,7 +269,7 @@ services:
       retries: 3
 
   helmplugin:
-    image: ghcr.io/ust-demaf/helm-plugin:testing
+    image: ghcr.io/ust-demaf/helm-plugin:latest
     hostname: helmplugin
     container_name: helmplugin
     depends_on:
@@ -295,7 +295,7 @@ services:
       retries: 3
 
   ansibleplugin:
-    image: ghcr.io/ust-demaf/ansible-mps-plugin:testing
+    image: ghcr.io/ust-demaf/ansible-mps-plugin:latest
     hostname: ansibleplugin
     container_name: ansibleplugin
     depends_on:
@@ -319,7 +319,7 @@ services:
       retries: 3
 
   dockerplugin:
-    image: ghcr.io/ust-demaf/docker-plugin:testing
+    image: ghcr.io/ust-demaf/docker-plugin:latest
     hostname: dockerplugin
     container_name: dockerplugin
     depends_on:
@@ -343,7 +343,7 @@ services:
       retries: 3
 
   visualizationservice:
-    image: ghcr.io/ust-demaf/visualization-service:testing
+    image: ghcr.io/ust-demaf/visualization-service:latest
     hostname: visualizationservice
     container_name: visualizationservice
     depends_on:

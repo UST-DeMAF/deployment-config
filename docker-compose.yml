@@ -15,6 +15,40 @@ volumes:
       device: ./winery
 
 services:
+  web-ui:
+    image: ghcr.io/ust-demaf/web-ui:testing #TODO: Change to latest once done
+#    build: ../web-ui #Build locally
+    hostname: web-ui
+    container_name: web-ui
+    depends_on:
+      ansibleplugin:
+        condition: service_healthy
+      bashplugin:
+        condition: service_healthy
+      dockerplugin:
+        condition: service_healthy
+      helmplugin:
+        condition: service_healthy
+      kubernetesplugin:
+        condition: service_healthy
+      terraformplugin:
+        condition: service_healthy
+      visualizationservice:
+        condition: service_healthy
+      winery:
+        condition: service_healthy
+    restart: always
+    volumes:
+      - demaf:/usr/share
+    ports:
+      - "8079:8079"
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8079/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   # Message Broker
   rabbitmq:
     image: rabbitmq:3.9-management
@@ -85,7 +119,7 @@ services:
 
   # Core Services
   analysismanager:
-    image: ghcr.io/ust-demaf/analysis-manager:latest
+    image: ghcr.io/ust-demaf/analysis-manager:testing #TODO: Swap back to latest
     hostname: analysismanager
     container_name: analysismanager
     depends_on:
@@ -116,7 +150,7 @@ services:
       retries: 5
 
   modelsservice:
-    image: ghcr.io/ust-demaf/models-service:latest
+    image: ghcr.io/ust-demaf/models-service:testing
     hostname: modelsservice
     container_name: modelsservice
     depends_on:
@@ -162,7 +196,7 @@ services:
   
   # Plugins
   bashplugin:
-    image: ghcr.io/ust-demaf/bash-plugin:latest
+    image: ghcr.io/ust-demaf/bash-plugin:testing
     hostname: bashplugin
     container_name: bashplugin
     depends_on:
@@ -211,7 +245,7 @@ services:
       retries: 3
 
   kubernetesplugin:
-    image: ghcr.io/ust-demaf/kubernetes-mps-plugin:latest
+    image: ghcr.io/ust-demaf/kubernetes-mps-plugin:testing
     hostname: kubernetesplugin
     container_name: kubernetesplugin
     depends_on:
@@ -235,7 +269,7 @@ services:
       retries: 3
 
   helmplugin:
-    image: ghcr.io/ust-demaf/helm-plugin:latest
+    image: ghcr.io/ust-demaf/helm-plugin:testing
     hostname: helmplugin
     container_name: helmplugin
     depends_on:
@@ -261,7 +295,7 @@ services:
       retries: 3
 
   ansibleplugin:
-    image: ghcr.io/ust-demaf/ansible-mps-plugin:latest
+    image: ghcr.io/ust-demaf/ansible-mps-plugin:testing
     hostname: ansibleplugin
     container_name: ansibleplugin
     depends_on:
@@ -285,7 +319,7 @@ services:
       retries: 3
 
   dockerplugin:
-    image: ghcr.io/ust-demaf/docker-plugin:latest
+    image: ghcr.io/ust-demaf/docker-plugin:testing
     hostname: dockerplugin
     container_name: dockerplugin
     depends_on:
@@ -309,7 +343,7 @@ services:
       retries: 3
 
   visualizationservice:
-    image: ghcr.io/ust-demaf/visualization-service:latest
+    image: ghcr.io/ust-demaf/visualization-service:testing
     hostname: visualizationservice
     container_name: visualizationservice
     depends_on:

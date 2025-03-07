@@ -1,0 +1,927 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: demaf-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rabbitmq-data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rabbitmq-logs-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: winery-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3.9-management
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          volumeMounts:
+            - name: rabbitmq-data
+              mountPath: /var/lib/rabbitmq
+            - name: rabbitmq-logs
+              mountPath: /var/log/rabbitmq
+          livenessProbe:
+            httpGet:
+              path: /api/healthchecks/node
+              port: 15672
+            initialDelaySeconds: 60
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: demaf-rabbitmq
+      restartPolicy: Always
+      volumes:
+        - name: rabbitmq-data
+          persistentVolumeClaim:
+            claimName: rabbitmq-data-pvc
+        - name: rabbitmq-logs
+          persistentVolumeClaim:
+            claimName: rabbitmq-logs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+    - name: amqp
+      protocol: TCP
+      port: 5672
+      targetPort: 5672
+    - name: management
+      protocol: TCP
+      port: 15672
+      targetPort: 15672
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modelsdatabase
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: modelsdatabase
+  template:
+    metadata:
+      labels:
+        app: modelsdatabase
+    spec:
+      containers:
+        - name: modelsdatabase
+          image: mongo:5.0.6
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: "tad"
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: "tad"
+          livenessProbe:
+            exec:
+              command:
+                - mongo
+                - --eval
+                - "db.adminCommand('ping')"
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: modelsdatabase
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: modelsdatabase
+spec:
+  selector:
+    app: modelsdatabase
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configurationsdatabase
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: configurationsdatabase
+  template:
+    metadata:
+      labels:
+        app: configurationsdatabase
+    spec:
+      containers:
+        - name: configurationsdatabase
+          image: postgres:14.2
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: "tad"
+            - name: POSTGRES_PASSWORD
+              value: "tad"
+            - name: POSTGRES_DB
+              value: "configurations"
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - tad
+                - -d
+                - configurations
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: configurationsdatabase
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: configurationsdatabase
+spec:
+  selector:
+    app: configurationsdatabase
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasksdatabase
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tasksdatabase
+  template:
+    metadata:
+      labels:
+        app: tasksdatabase
+    spec:
+      containers:
+        - name: tasksdatabase
+          image: postgres:14.2
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: "tad"
+            - name: POSTGRES_PASSWORD
+              value: "tad"
+            - name: POSTGRES_DB
+              value: "tasks"
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - tad
+                - -d
+                - tasks
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: tasksdatabase
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tasksdatabase
+spec:
+  selector:
+    app: tasksdatabase
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analysismanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: analysismanager
+  template:
+    metadata:
+      labels:
+        app: analysismanager
+    spec:
+      initContainers:
+        - name: depends-on
+          image: busybox
+          command: ["sh", "-c", "until nc -z rabbitmq 5672 && nc -z configurationsdatabase 5432 && nc -z tasksdatabase 5432; do echo 'waiting for dependencies'; sleep 5; done;"]
+      containers:
+        - name: analysismanager
+          image: ghcr.io/ust-demaf/analysis-manager:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_APPLICATION_JSON
+              value: '{
+                "spring.configurations-datasource.jdbcUrl": "jdbc:postgresql://configurationsdatabase:5432/configurations",
+                "spring.configurations-datasource.username": "tad",
+                "spring.configurations-datasource.password": "tad",
+                "spring.tasks-datasource.jdbcUrl": "jdbc:postgresql://tasksdatabase:5432/tasks",
+                "spring.tasks-datasource.username": "tad",
+                "spring.tasks-datasource.password": "tad",
+                "models-service.url": "http://modelsservice:8081",
+                "spring.rabbitmq.host": "rabbitmq"
+                }'
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: analysismanager
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analysismanager
+spec:
+  selector:
+    app: analysismanager
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modelsservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: modelsservice
+  template:
+    metadata:
+      labels:
+        app: modelsservice
+    spec:
+      initContainers:
+        - name: depends-on
+          image: busybox
+          command: ["sh", "-c", "until nc -z modelsdatabase 27017 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+      containers:
+        - name: modelsservice
+          image: ghcr.io/ust-demaf/models-service:latest
+          ports:
+            - containerPort: 8081
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
+          env:
+            - name: SPRING_DATA_MONGODB_USERNAME
+              value: "tad"
+            - name: SPRING_DATA_MONGODB_PASSWORD
+              value: "tad"
+            - name: SPRING_DATA_MONGODB_DATABASE
+              value: "modelsdatabase"
+            - name: SPRING_DATA_MONGODB_HOST
+              value: "modelsdatabase"
+            - name: SPRING_DATA_MONGODB_PORT
+              value: "27017"
+            - name: TADM_OUTPUT_DIRECTORY
+              value: "/usr/share/tadms"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: modelsservice
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: modelsservice
+spec:
+  selector:
+    app: modelsservice
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: winery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: winery
+  template:
+    metadata:
+      labels:
+        app: winery
+    spec:
+      containers:
+        - name: winery
+          image: opentosca/radon-gmt:latest
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: winery
+              mountPath: /var/repository
+          env:
+            - name: PUBLIC_HOSTNAME
+              value: "localhost"
+            - name: WINERY_FEATURE_RADON
+              value: "true"
+            - name: WINERY_REPOSITORY_PROVIDER
+              value: "yaml"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: winery
+      restartPolicy: Always
+      volumes:
+        - name: winery
+          persistentVolumeClaim:
+            claimName: winery-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: winery
+spec:
+  selector:
+    app: winery
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bashplugin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bashplugin
+  template:
+    metadata:
+      labels:
+        app: bashplugin
+    spec:
+      initContainers:
+        - name: depends-on
+          image: busybox
+          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+      containers:
+        - name: bashplugin
+          image: ghcr.io/ust-demaf/bash-plugin:latest
+          ports:
+            - containerPort: 8083
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
+          env:
+            - name: ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL
+              value: "http://analysismanager:8080/plugin-registration"
+            - name: MODELS_SERVICE_URL
+              value: "http://modelsservice:8081"
+            - name: SPRING_RABBITMQ_HOST
+              value: "rabbitmq"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: bashplugin
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bashplugin
+spec:
+  selector:
+    app: bashplugin
+  ports:
+    - protocol: TCP
+      port: 8083
+      targetPort: 8083
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: terraformplugin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: terraformplugin
+  template:
+    metadata:
+      labels:
+        app: terraformplugin
+    spec:
+      initContainers:
+        - name: depends-on
+          image: busybox
+          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+      containers:
+        - name: terraformplugin
+          image: ghcr.io/ust-demaf/terraform-plugin:latest
+          ports:
+            - containerPort: 8084
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
+          env:
+            - name: ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL
+              value: "http://analysismanager:8080/plugin-registration"
+            - name: MODELS_SERVICE_URL
+              value: "http://modelsservice:8081"
+            - name: SPRING_RABBITMQ_HOST
+              value: "rabbitmq"
+            - name: RUNPROVIDERPOSTPROCESSORS
+              value: "true"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8084
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: terraformplugin
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: terraformplugin
+spec:
+  selector:
+    app: terraformplugin
+  ports:
+    - protocol: TCP
+      port: 8084
+      targetPort: 8084
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernetesplugin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubernetesplugin
+  template:
+    metadata:
+      labels:
+        app: kubernetesplugin
+    spec:
+      initContainers:
+        - name: depends-on
+          image: busybox
+          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+      containers:
+        - name: kubernetesplugin
+          image: ghcr.io/ust-demaf/kubernetes-plugin:latest
+          ports:
+            - containerPort: 8085
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
+          env:
+            - name: ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL
+              value: "http://analysismanager:8080/plugin-registration"
+            - name: MODELS_SERVICE_URL
+              value: "http://modelsservice:8081"
+            - name: SPRING_RABBITMQ_HOST
+              value: "rabbitmq"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: kubernetesplugin
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubernetesplugin
+spec:
+  selector:
+    app: kubernetesplugin
+  ports:
+    - protocol: TCP
+      port: 8085
+      targetPort: 8085
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helmplugin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helmplugin
+  template:
+    metadata:
+      labels:
+        app: helmplugin
+    spec:
+      initContainers:
+        - name: depends-on
+          image: busybox
+          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+      containers:
+        - name: helmplugin
+          image: ghcr.io/ust-demaf/helm-plugin:latest
+          ports:
+            - containerPort: 8086
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
+          env:
+            - name: ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL
+              value: "http://analysismanager:8080/plugin-registration"
+            - name: MODELS_SERVICE_URL
+              value: "http://modelsservice:8081"
+            - name: SPRING_RABBITMQ_HOST
+              value: "rabbitmq"
+            - name: KUBE_OUTPUT_DIRECTORY
+              value: "/usr/share/helmTemplates"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8086
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: helmplugin
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: helmplugin
+spec:
+  selector:
+    app: helmplugin
+  ports:
+    - protocol: TCP
+      port: 8086
+      targetPort: 8086
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ansibleplugin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ansibleplugin
+  template:
+    metadata:
+      labels:
+        app: ansibleplugin
+    spec:
+      initContainers:
+        - name: depends-on
+          image: busybox
+          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+      containers:
+        - name: ansibleplugin
+          image: ghcr.io/ust-demaf/ansible-plugin:latest
+          ports:
+            - containerPort: 8087
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
+          env:
+            - name: ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL
+              value: "http://analysismanager:8080/plugin-registration"
+            - name: MODELS_SERVICE_URL
+              value: "http://modelsservice:8081"
+            - name: SPRING_RABBITMQ_HOST
+              value: "rabbitmq"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8087
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: ansibleplugin
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ansibleplugin
+spec:
+  selector:
+    app: ansibleplugin
+  ports:
+    - protocol: TCP
+      port: 8087
+      targetPort: 8087
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dockerplugin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dockerplugin
+  template:
+    metadata:
+      labels:
+        app: dockerplugin
+    spec:
+      initContainers:
+        - name: depends-on
+          image: busybox
+          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+      containers:
+        - name: dockerplugin
+          image: ghcr.io/ust-demaf/docker-plugin:latest
+          ports:
+            - containerPort: 8089
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
+          env:
+            - name: ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL
+              value: "http://analysismanager:8080/plugin-registration"
+            - name: MODELS_SERVICE_URL
+              value: "http://modelsservice:8081"
+            - name: SPRING_RABBITMQ_HOST
+              value: "rabbitmq"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: dockerplugin
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dockerplugin
+spec:
+  selector:
+    app: dockerplugin
+  ports:
+    - protocol: TCP
+      port: 8089
+      targetPort: 8089
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visualizationservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: visualizationservice
+  template:
+    metadata:
+      labels:
+        app: visualizationservice
+    spec:
+      initContainers:
+        - name: depends-on
+          image: busybox
+          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z modelsservice 8081 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+      containers:
+        - name: visualizationservice
+          image: ghcr.io/ust-demaf/visualization-service:latest
+          ports:
+            - containerPort: 8082
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
+            - name: winery
+              mountPath: /var/repository
+          env:
+            - name: ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL
+              value: "http://analysismanager:8080/plugin-registration"
+            - name: MODELS_SERVICE_URL
+              value: "http://modelsservice:8081"
+            - name: SPRING_RABBITMQ_HOST
+              value: "rabbitmq"
+            - name: WINERY_PATH
+              value: "/var/repository"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: visualizationservice
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+        - name: winery
+          persistentVolumeClaim:
+            claimName: winery-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: visualizationservice
+spec:
+  selector:
+    app: visualizationservice
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-ui
+  template:
+    metadata:
+      labels:
+        app: web-ui
+    spec:
+      initContainers:
+        - name: depends-on
+          image: busybox
+          command: ["sh", "-c", "until nc -z bashplugin 8083 && nc -z terraformplugin 8084 && nc -z kubernetesplugin 8085 && nc -z helmplugin 8086 && nc -z ansibleplugin 8087 && nc -z dockerplugin 8089 && nc -z visualizationservice 8082 && nc -z winery 8080; do echo 'waiting for dependencies'; sleep 5; done;"]
+      containers:
+        - name: web-ui
+          image: ghcr.io/ust-demaf/web-ui:latest
+          ports:
+            - containerPort: 8079
+            - containerPort: 3000
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8079
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 5
+      hostname: web-ui
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-ui
+spec:
+  type: LoadBalancer
+  selector:
+    app: web-ui
+  ports:
+    - name: frontend
+      protocol: TCP
+      port: 8080
+      targetPort: 8079
+    - name: backend
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
+---

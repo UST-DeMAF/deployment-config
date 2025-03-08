@@ -63,6 +63,7 @@ spec:
       containers:
         - name: rabbitmq
           image: rabbitmq:3.9-management
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5672
             - containerPort: 15672
@@ -72,13 +73,14 @@ spec:
             - name: rabbitmq-logs
               mountPath: /var/log/rabbitmq
           livenessProbe:
-            httpGet:
-              path: /api/healthchecks/node
-              port: 15672
+            exec:
+              command:
+                - rabbitmqctl
+                - status
             initialDelaySeconds: 60
             failureThreshold: 3
-            periodSeconds: 10
-            timeoutSeconds: 5
+            periodSeconds: 60
+            timeoutSeconds: 15
       hostname: demaf-rabbitmq
       restartPolicy: Always
       volumes:
@@ -123,6 +125,7 @@ spec:
       containers:
         - name: modelsdatabase
           image: mongo:5.0.6
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 27017
           env:
@@ -136,10 +139,10 @@ spec:
                 - mongo
                 - --eval
                 - "db.adminCommand('ping')"
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: modelsdatabase
       restartPolicy: Always
 ---
@@ -172,6 +175,7 @@ spec:
       containers:
         - name: configurationsdatabase
           image: postgres:14.2
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
           env:
@@ -189,10 +193,10 @@ spec:
                 - tad
                 - -d
                 - configurations
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: configurationsdatabase
       restartPolicy: Always
 ---
@@ -225,6 +229,7 @@ spec:
       containers:
         - name: tasksdatabase
           image: postgres:14.2
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
           env:
@@ -242,10 +247,10 @@ spec:
                 - tad
                 - -d
                 - tasks
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: tasksdatabase
       restartPolicy: Always
 ---
@@ -278,10 +283,17 @@ spec:
       initContainers:
         - name: depends-on
           image: busybox
-          command: ["sh", "-c", "until nc -z rabbitmq 5672 && nc -z configurationsdatabase 5432 && nc -z tasksdatabase 5432; do echo 'waiting for dependencies'; sleep 5; done;"]
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z rabbitmq 5672 && nc -z configurationsdatabase 5432 && nc -z tasksdatabase 5432; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
       containers:
         - name: analysismanager
           image: ghcr.io/ust-demaf/analysis-manager:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           env:
@@ -300,10 +312,10 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: analysismanager
       restartPolicy: Always
 ---
@@ -336,10 +348,17 @@ spec:
       initContainers:
         - name: depends-on
           image: busybox
-          command: ["sh", "-c", "until nc -z modelsdatabase 27017 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z modelsdatabase 27017 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
       containers:
         - name: modelsservice
           image: ghcr.io/ust-demaf/models-service:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
           volumeMounts:
@@ -362,10 +381,10 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8081
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: modelsservice
       restartPolicy: Always
       volumes:
@@ -402,6 +421,7 @@ spec:
       containers:
         - name: winery
           image: opentosca/radon-gmt:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           volumeMounts:
@@ -418,10 +438,10 @@ spec:
             httpGet:
               path: /
               port: 8080
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: winery
       restartPolicy: Always
       volumes:
@@ -458,10 +478,17 @@ spec:
       initContainers:
         - name: depends-on
           image: busybox
-          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
       containers:
         - name: bashplugin
           image: ghcr.io/ust-demaf/bash-plugin:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8083
           volumeMounts:
@@ -478,10 +505,10 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8083
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: bashplugin
       restartPolicy: Always
       volumes:
@@ -518,10 +545,17 @@ spec:
       initContainers:
         - name: depends-on
           image: busybox
-          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
       containers:
         - name: terraformplugin
-          image: ghcr.io/ust-demaf/terraform-plugin:latest
+          image: ghcr.io/ust-demaf/terraform-mps-plugin:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8084
           volumeMounts:
@@ -540,10 +574,10 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8084
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: terraformplugin
       restartPolicy: Always
       volumes:
@@ -580,10 +614,17 @@ spec:
       initContainers:
         - name: depends-on
           image: busybox
-          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
       containers:
         - name: kubernetesplugin
-          image: ghcr.io/ust-demaf/kubernetes-plugin:latest
+          image: ghcr.io/ust-demaf/kubernetes-mps-plugin:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8085
           volumeMounts:
@@ -600,10 +641,10 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8085
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: kubernetesplugin
       restartPolicy: Always
       volumes:
@@ -640,10 +681,17 @@ spec:
       initContainers:
         - name: depends-on
           image: busybox
-          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
       containers:
         - name: helmplugin
           image: ghcr.io/ust-demaf/helm-plugin:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8086
           volumeMounts:
@@ -662,10 +710,10 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8086
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: helmplugin
       restartPolicy: Always
       volumes:
@@ -702,10 +750,17 @@ spec:
       initContainers:
         - name: depends-on
           image: busybox
-          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
       containers:
         - name: ansibleplugin
-          image: ghcr.io/ust-demaf/ansible-plugin:latest
+          image: ghcr.io/ust-demaf/ansible-mps-plugin:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8087
           volumeMounts:
@@ -722,10 +777,10 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8087
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: ansibleplugin
       restartPolicy: Always
       volumes:
@@ -762,10 +817,17 @@ spec:
       initContainers:
         - name: depends-on
           image: busybox
-          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
       containers:
         - name: dockerplugin
           image: ghcr.io/ust-demaf/docker-plugin:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8089
           volumeMounts:
@@ -782,10 +844,10 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8089
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: dockerplugin
       restartPolicy: Always
       volumes:
@@ -822,10 +884,17 @@ spec:
       initContainers:
         - name: depends-on
           image: busybox
-          command: ["sh", "-c", "until nc -z analysismanager 8080 && nc -z modelsservice 8081 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;"]
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z analysismanager 8080 && nc -z modelsservice 8081 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
       containers:
         - name: visualizationservice
           image: ghcr.io/ust-demaf/visualization-service:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8082
           volumeMounts:
@@ -846,10 +915,10 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8082
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: visualizationservice
       restartPolicy: Always
       volumes:
@@ -889,10 +958,17 @@ spec:
       initContainers:
         - name: depends-on
           image: busybox
-          command: ["sh", "-c", "until nc -z bashplugin 8083 && nc -z terraformplugin 8084 && nc -z kubernetesplugin 8085 && nc -z helmplugin 8086 && nc -z ansibleplugin 8087 && nc -z dockerplugin 8089 && nc -z visualizationservice 8082 && nc -z winery 8080; do echo 'waiting for dependencies'; sleep 5; done;"]
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z bashplugin 8083 && nc -z terraformplugin 8084 && nc -z kubernetesplugin 8085 && nc -z helmplugin 8086 && nc -z ansibleplugin 8087 && nc -z dockerplugin 8089 && nc -z visualizationservice 8082 && nc -z winery 8080; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
       containers:
         - name: web-ui
           image: ghcr.io/ust-demaf/web-ui:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8079
             - containerPort: 3000
@@ -900,10 +976,10 @@ spec:
             httpGet:
               path: /
               port: 8079
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 15
       hostname: web-ui
       restartPolicy: Always
 ---
@@ -925,3 +1001,4 @@ spec:
       port: 3000
       targetPort: 3000
 ---
+

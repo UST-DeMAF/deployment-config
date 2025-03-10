@@ -1,7 +1,13 @@
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: demaf
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: demaf-pvc
+  namespace: demaf
 spec:
   accessModes:
     - ReadWriteOnce
@@ -14,6 +20,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: rabbitmq-data-pvc
+  namespace: demaf
 spec:
   accessModes:
     - ReadWriteOnce
@@ -26,6 +33,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: rabbitmq-logs-pvc
+  namespace: demaf
 spec:
   accessModes:
     - ReadWriteOnce
@@ -38,6 +46,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: winery-pvc
+  namespace: demaf
 spec:
   accessModes:
     - ReadWriteOnce
@@ -50,6 +59,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rabbitmq
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -95,6 +105,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: rabbitmq
+  namespace: demaf
 spec:
   selector:
     app: rabbitmq
@@ -112,6 +123,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: modelsdatabase
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -150,6 +162,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: modelsdatabase
+  namespace: demaf
 spec:
   selector:
     app: modelsdatabase
@@ -162,6 +175,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: configurationsdatabase
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -204,6 +218,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: configurationsdatabase
+  namespace: demaf
 spec:
   selector:
     app: configurationsdatabase
@@ -216,6 +231,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tasksdatabase
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -258,6 +274,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tasksdatabase
+  namespace: demaf
 spec:
   selector:
     app: tasksdatabase
@@ -270,6 +287,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: analysismanager
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -323,6 +341,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: analysismanager
+  namespace: demaf
 spec:
   selector:
     app: analysismanager
@@ -335,6 +354,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: modelsservice
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -396,6 +416,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: modelsservice
+  namespace: demaf
 spec:
   selector:
     app: modelsservice
@@ -408,6 +429,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: winery
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -453,18 +475,20 @@ apiVersion: v1
 kind: Service
 metadata:
   name: winery
+  namespace: demaf
 spec:
   selector:
     app: winery
   ports:
     - protocol: TCP
       port: 8080
-      targetPort: 80
+      targetPort: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bashplugin
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -501,6 +525,8 @@ spec:
               value: "http://modelsservice:8081"
             - name: SPRING_RABBITMQ_HOST
               value: "rabbitmq"
+            - name: SPRING_RABBITMQ_PORT
+              value: "5672"
           livenessProbe:
             httpGet:
               path: /actuator/health
@@ -520,6 +546,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: bashplugin
+  namespace: demaf
 spec:
   selector:
     app: bashplugin
@@ -532,6 +559,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: terraformplugin
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -568,6 +596,8 @@ spec:
               value: "http://modelsservice:8081"
             - name: SPRING_RABBITMQ_HOST
               value: "rabbitmq"
+            - name: SPRING_RABBITMQ_PORT
+              value: "5672"
             - name: RUNPROVIDERPOSTPROCESSORS
               value: "true"
           livenessProbe:
@@ -589,6 +619,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: terraformplugin
+  namespace: demaf
 spec:
   selector:
     app: terraformplugin
@@ -601,6 +632,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kubernetesplugin
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -637,6 +669,8 @@ spec:
               value: "http://modelsservice:8081"
             - name: SPRING_RABBITMQ_HOST
               value: "rabbitmq"
+            - name: SPRING_RABBITMQ_PORT
+              value: "5672"
           livenessProbe:
             httpGet:
               path: /actuator/health
@@ -656,6 +690,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kubernetesplugin
+  namespace: demaf
 spec:
   selector:
     app: kubernetesplugin
@@ -668,6 +703,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: helmplugin
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -704,6 +740,8 @@ spec:
               value: "http://modelsservice:8081"
             - name: SPRING_RABBITMQ_HOST
               value: "rabbitmq"
+            - name: SPRING_RABBITMQ_PORT
+              value: "5672"
             - name: KUBE_OUTPUT_DIRECTORY
               value: "/usr/share/helmTemplates"
           livenessProbe:
@@ -725,6 +763,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: helmplugin
+  namespace: demaf
 spec:
   selector:
     app: helmplugin
@@ -737,6 +776,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ansibleplugin
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -773,6 +813,8 @@ spec:
               value: "http://modelsservice:8081"
             - name: SPRING_RABBITMQ_HOST
               value: "rabbitmq"
+            - name: SPRING_RABBITMQ_PORT
+              value: "5672"
           livenessProbe:
             httpGet:
               path: /actuator/health
@@ -792,6 +834,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ansibleplugin
+  namespace: demaf
 spec:
   selector:
     app: ansibleplugin
@@ -804,6 +847,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: dockerplugin
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -840,6 +884,8 @@ spec:
               value: "http://modelsservice:8081"
             - name: SPRING_RABBITMQ_HOST
               value: "rabbitmq"
+            - name: SPRING_RABBITMQ_PORT
+              value: "5672"
           livenessProbe:
             httpGet:
               path: /actuator/health
@@ -859,6 +905,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: dockerplugin
+  namespace: demaf
 spec:
   selector:
     app: dockerplugin
@@ -871,6 +918,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: visualizationservice
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -911,6 +959,8 @@ spec:
               value: "rabbitmq"
             - name: WINERY_PATH
               value: "/var/repository"
+            - name: SPRING_RABBITMQ_PORT
+              value: "5672"
           livenessProbe:
             httpGet:
               path: /actuator/health
@@ -933,6 +983,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: visualizationservice
+  namespace: demaf
 spec:
   selector:
     app: visualizationservice
@@ -945,6 +996,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web-ui
+  namespace: demaf
 spec:
   replicas: 1
   selector:
@@ -987,6 +1039,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: web-ui
+  namespace: demaf
 spec:
   type: LoadBalancer
   selector:

@@ -14,7 +14,7 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 10Mi
+      storage: 100Mi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -53,7 +53,7 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 10Mi
+      storage: 100Mi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -308,6 +308,24 @@ spec:
               "-c",
               "until nc -z rabbitmq 5672 && nc -z configurationsdatabase 5432 && nc -z tasksdatabase 5432; do echo 'waiting for dependencies'; sleep 5; done;",
             ]
+        - name: populate-demaf-pvc
+          image: alpine/git
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              if [ ! -d "/usr/share/volume" ]; then
+                git clone --depth=1 https://github.com/UST-DeMAF/deployment-config.git
+                mv deployment-config/volume /usr/share
+                chmod -R 777 /usr/share
+                rm -rf deployment-config
+              else
+                echo "Winery already cloned"
+              fi
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
       containers:
         - name: analysismanager
           image: ghcr.io/ust-demaf/analysis-manager:latest
@@ -336,6 +354,10 @@ spec:
             timeoutSeconds: 15
       hostname: analysismanager
       restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -440,6 +462,25 @@ spec:
       labels:
         app: winery
     spec:
+      initContainers:
+        - name: populate-winery-pvc
+          image: alpine/git
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              if [ ! -d "/var/repository/winery" ]; then
+                git clone --depth=1 https://github.com/UST-DeMAF/deployment-config.git
+                mv deployment-config/winery /var/repository
+                chmod -R 777 /var/repository
+                rm -rf deployment-config
+              else
+                echo "Winery already cloned"
+              fi
+          volumeMounts:
+            - name: winery
+              mountPath: /var/repository
       containers:
         - name: winery
           image: opentosca/radon-gmt:latest
@@ -481,8 +522,9 @@ spec:
     app: winery
   ports:
     - protocol: TCP
-      port: 8080
+      port: 80
       targetPort: 8080
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -939,6 +981,24 @@ spec:
               "-c",
               "until nc -z analysismanager 8080 && nc -z modelsservice 8081 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;",
             ]
+        - name: populate-winery-pvc
+          image: alpine/git
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              if [ ! -d "/var/repository/winery" ]; then
+                git clone --depth=1 https://github.com/UST-DeMAF/deployment-config.git
+                mv deployment-config/winery /var/repository
+                chmod -R 777 /var/repository
+                rm -rf deployment-config
+              else
+                echo "Winery already cloned"
+              fi
+          volumeMounts:
+            - name: winery
+              mountPath: /var/repository
       containers:
         - name: visualizationservice
           image: ghcr.io/ust-demaf/visualization-service:latest
@@ -1015,7 +1075,7 @@ spec:
             [
               "sh",
               "-c",
-              "until nc -z bashplugin 8083 && nc -z terraformplugin 8084 && nc -z kubernetesplugin 8085 && nc -z helmplugin 8086 && nc -z ansibleplugin 8087 && nc -z dockerplugin 8089 && nc -z visualizationservice 8082 && nc -z winery 8080; do echo 'waiting for dependencies'; sleep 5; done;",
+              "until nc -z bashplugin 8083 && nc -z terraformplugin 8084 && nc -z kubernetesplugin 8085 && nc -z helmplugin 8086 && nc -z ansibleplugin 8087 && nc -z dockerplugin 8089 && nc -z visualizationservice 8082 && nc -z winery 80; do echo 'waiting for dependencies'; sleep 5; done;",
             ]
       containers:
         - name: web-ui
@@ -1047,7 +1107,7 @@ spec:
   ports:
     - name: frontend
       protocol: TCP
-      port: 8080
+      port: 8079
       targetPort: 8079
     - name: backend
       protocol: TCP

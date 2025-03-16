@@ -1297,7 +1297,6 @@ metadata:
   name: web-ui
   namespace: demaf
 spec:
-  type: LoadBalancer
   selector:
     app: web-ui
   ports:
@@ -1310,4 +1309,20 @@ spec:
       port: 3000
       targetPort: 3000
 ---
-
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-ui-ingress
+  namespace: demaf
+spec:
+  rules:
+    - host: ust.demaf.de
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: web-ui
+                port: 
+                  number: 8079

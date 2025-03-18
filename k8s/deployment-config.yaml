@@ -428,7 +428,7 @@ metadata:
   namespace: demaf
 spec:
   rules:
-    - host: analysismanager.localhost
+    - host: analysismanager
       http:
         paths:
           - pathType: Exact
@@ -548,7 +548,7 @@ metadata:
   name: winery
   namespace: demaf
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: winery
@@ -621,6 +621,19 @@ spec:
           persistentVolumeClaim:
             claimName: winery-pvc
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: winery
+  namespace: demaf
+spec:
+  selector:
+    app: winery
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -628,7 +641,7 @@ metadata:
   namespace: demaf
 spec:
   rules:
-    - host: winery.localhost
+    - host: winery
       http:
         paths:
           - pathType: Prefix
@@ -637,7 +650,7 @@ spec:
               service:
                 name: winery
                 port:
-                  number: 8080
+                  number: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -1276,7 +1289,7 @@ metadata:
   name: web-ui
   namespace: demaf
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: web-ui

@@ -1316,6 +1316,11 @@ spec:
           ports:
             - containerPort: 8079
             - containerPort: 3000
+          env:
+            - name: DEMAF_ANALYSIS_MANAGER_URL
+              value: "http://analysismanager:8080"
+            - name: DEMAF_WINERY_URL
+              value: "http://winery:8079"
           livenessProbe:
             httpGet:
               path: /

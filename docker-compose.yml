@@ -1,5 +1,5 @@
 volumes:
-  demaf: 
+  demaf:
     driver: local
     driver_opts:
       type: 'none'
@@ -25,9 +25,21 @@ services:
       context: ../web-ui
       dockerfile: Dockerfile
     depends_on:
-      analysismanager:
+      ansibleplugin:
+        condition: service_healthy
+      bashplugin:
+        condition: service_healthy
+      dockerplugin:
+        condition: service_healthy
+      helmplugin:
+        condition: service_healthy
+      kubernetesplugin:
+        condition: service_healthy
+      terraformplugin:
         condition: service_healthy
       visualizationservice:
+        condition: service_healthy
+      winery:
         condition: service_healthy
     restart: always
     environment:
@@ -37,6 +49,11 @@ services:
       - demaf:/usr/share
     ports:
       - "8079:8079"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8079/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   # Message Broker
   rabbitmq:

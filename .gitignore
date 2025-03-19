@@ -9,6 +9,11 @@
 !/volume/tadms/README.md
 
 /winery/graphviz/**
+/winery/artifacttypes/**
+!/winery/artifacttypes/tosca.artifacts/
+!/winery/artifacttypes/tosca.artifacts.Deployment/
+!/winery/artifacttypes/tosca.artifacts.Deployment.Image/
+!/winery/artifacttypes/tosca.artifacts.Implementation/
 /winery/nodetypes/*
 !/winery/nodetypes/tosca.nodes/
 !/winery/nodetypes/tosca.nodes.Abstract/

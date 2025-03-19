@@ -15,17 +15,28 @@ volumes:
       device: ./winery
 
 services:
+# Web-UI
   web-ui:
 #    image: ghcr.io/ust-demaf/web-ui:testing
-    build: ../web-ui #TODO: ADD build and publish
+    image: web-ui:testing
     hostname: web-ui
     container_name: web-ui
+    build:
+      context: ../web-ui
+      dockerfile: Dockerfile
+    depends_on:
+      analysismanager:
+        condition: service_healthy
+      visualizationservice:
+        condition: service_healthy
+    restart: always
+    environment:
+      DEMAF_ANALYSIS_MANAGER_URL: http://analysismanager:8080
+      DEMAF_WINERY_URL: http://localhost:80
     volumes:
       - demaf:/usr/share
     ports:
       - "8079:8079"
-      - "3000:3000"
-    restart: unless-stopped
 
   # Message Broker
   rabbitmq:
@@ -171,7 +182,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-  
+
   # Plugins
   bashplugin:
     image: ghcr.io/ust-demaf/bash-plugin:latest

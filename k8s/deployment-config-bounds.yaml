@@ -74,6 +74,13 @@ spec:
         - name: rabbitmq
           image: rabbitmq:3.9-management
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1.5Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
           ports:
             - containerPort: 5672
             - containerPort: 15672
@@ -138,6 +145,13 @@ spec:
         - name: modelsdatabase
           image: mongo:5.0.6
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "1"
+              memory: "2Gi"
+            limits:
+              cpu: "4"
+              memory: "8Gi"
           ports:
             - containerPort: 27017
           env:
@@ -190,6 +204,13 @@ spec:
         - name: configurationsdatabase
           image: postgres:14.2
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "1"
+              memory: "2Gi"
+            limits:
+              cpu: "4"
+              memory: "8Gi"
           ports:
             - containerPort: 5432
           env:
@@ -246,6 +267,13 @@ spec:
         - name: tasksdatabase
           image: postgres:14.2
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "1"
+              memory: "2Gi"
+            limits:
+              cpu: "4"
+              memory: "8Gi"
           ports:
             - containerPort: 5432
           env:
@@ -302,6 +330,13 @@ spec:
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "5Mi"
+            limits:
+              cpu: "50m"
+              memory: "10Mi"
           command:
             [
               "sh",
@@ -311,6 +346,13 @@ spec:
         - name: populate-demaf-pvc
           image: alpine/git:2.47.2
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "50Mi"
+            limits:
+              cpu: "200m"
+              memory: "200Mi"
           command:
             - sh
             - -c
@@ -330,6 +372,13 @@ spec:
         - name: analysismanager
           image: ghcr.io/ust-demaf/analysis-manager:latest
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"
           ports:
             - containerPort: 8080
           env:
@@ -423,6 +472,13 @@ spec:
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "5Mi"
+            limits:
+              cpu: "50m"
+              memory: "10Mi"
           command:
             [
               "sh",
@@ -433,6 +489,13 @@ spec:
         - name: modelsservice
           image: ghcr.io/ust-demaf/models-service:latest
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "1.5Gi"
           ports:
             - containerPort: 8081
           volumeMounts:
@@ -498,6 +561,13 @@ spec:
         - name: populate-winery-pvc
           image: alpine/git:2.47.2
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "50Mi"
+            limits:
+              cpu: "200m"
+              memory: "100Mi"
           command:
             - sh
             - -c
@@ -517,6 +587,13 @@ spec:
         - name: winery
           image: opentosca/radon-gmt:latest
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
           ports:
             - containerPort: 8080
           volumeMounts:
@@ -594,6 +671,13 @@ spec:
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "5Mi"
+            limits:
+              cpu: "50m"
+              memory: "10Mi"
           command:
             [
               "sh",
@@ -604,6 +688,13 @@ spec:
         - name: bashplugin
           image: ghcr.io/ust-demaf/bash-plugin:latest
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "1.5Gi"
           ports:
             - containerPort: 8083
           volumeMounts:
@@ -665,6 +756,13 @@ spec:
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "5Mi"
+            limits:
+              cpu: "50m"
+              memory: "10Mi"
           command:
             [
               "sh",
@@ -675,6 +773,13 @@ spec:
         - name: terraformplugin
           image: ghcr.io/ust-demaf/terraform-mps-plugin:latest
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
           ports:
             - containerPort: 8084
           volumeMounts:
@@ -738,6 +843,13 @@ spec:
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "5Mi"
+            limits:
+              cpu: "50m"
+              memory: "10Mi"
           command:
             [
               "sh",
@@ -748,6 +860,13 @@ spec:
         - name: kubernetesplugin
           image: ghcr.io/ust-demaf/kubernetes-mps-plugin:latest
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
           ports:
             - containerPort: 8085
           volumeMounts:
@@ -809,6 +928,13 @@ spec:
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "5Mi"
+            limits:
+              cpu: "50m"
+              memory: "10Mi"
           command:
             [
               "sh",
@@ -889,6 +1015,13 @@ spec:
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "5Mi"
+            limits:
+              cpu: "50m"
+              memory: "10Mi"
           command:
             [
               "sh",
@@ -899,6 +1032,13 @@ spec:
         - name: ansibleplugin
           image: ghcr.io/ust-demaf/ansible-mps-plugin:latest
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
           ports:
             - containerPort: 8087
           volumeMounts:
@@ -960,6 +1100,13 @@ spec:
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "5Mi"
+            limits:
+              cpu: "50m"
+              memory: "10Mi"
           command:
             [
               "sh",
@@ -1038,6 +1185,13 @@ spec:
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "5Mi"
+            limits:
+              cpu: "50m"
+              memory: "10Mi"
           command:
             [
               "sh",
@@ -1148,6 +1302,13 @@ spec:
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "5Mi"
+            limits:
+              cpu: "50m"
+              memory: "10Mi"
           command:
             [
               "sh",

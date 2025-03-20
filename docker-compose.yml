@@ -44,13 +44,13 @@ services:
     restart: always
     environment:
       DEMAF_ANALYSIS_MANAGER_URL: http://analysismanager:8080
-      DEMAF_WINERY_URL: http://localhost:80
+      DEMAF_WINERY_URL: http://localhost:8079
     volumes:
       - demaf:/usr/share
     ports:
-      - "8079:8079"
+      - "80:80"
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8079/"]
+      test: ["CMD", "curl", "-sf", "http://localhost:80/"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -193,7 +193,7 @@ services:
     volumes:
       - winery:/var/repository
     ports:
-      - 80:8080
+      - 8079:8080
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/"]
       interval: 10s

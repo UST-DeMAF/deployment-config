@@ -4,6 +4,33 @@
 # metadata:
 #   name: demaf
 # ---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: demaf-storage-class
+  namespace: demaf
+provisioner: kubernetes.io/no-provisioner # indicates that this StorageClass does not support automatic provisioning
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: demaf-pv
+  namespace: demaf
+spec:
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: demaf-storage-class
+  persistentVolumeReclaimPolicy: Delete
+  hostPath:
+    path: "/mnt/data/demaf"
+  claimRef:
+    namespace: demaf
+    name: demaf-pvc
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -18,30 +45,23 @@ spec:
       storage: 100Mi
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  name: rabbitmq-data-pvc
+  name: winery-pv
   namespace: demaf
 spec:
+  capacity:
+    storage: 100Mi
   accessModes:
     - ReadWriteOnce
   volumeMode: Filesystem
-  resources:
-    requests:
-      storage: 10Mi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: rabbitmq-logs-pvc
-  namespace: demaf
-spec:
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Filesystem
-  resources:
-    requests:
-      storage: 5Mi
+  storageClassName: demaf-storage-class
+  persistentVolumeReclaimPolicy: Delete
+  hostPath:
+    path: "/mnt/data/winery"
+  claimRef:
+    namespace: demaf
+    name: winery-pvc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -78,11 +98,6 @@ spec:
           ports:
             - containerPort: 5672
             - containerPort: 15672
-          volumeMounts:
-            - name: rabbitmq-data
-              mountPath: /var/lib/rabbitmq
-            - name: rabbitmq-logs
-              mountPath: /var/log/rabbitmq
           livenessProbe:
             exec:
               command:
@@ -94,13 +109,6 @@ spec:
             timeoutSeconds: 15
       hostname: demaf-rabbitmq
       restartPolicy: Always
-      volumes:
-        - name: rabbitmq-data
-          persistentVolumeClaim:
-            claimName: rabbitmq-data-pvc
-        - name: rabbitmq-logs
-          persistentVolumeClaim:
-            claimName: rabbitmq-logs-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -555,7 +563,7 @@ spec:
     app: winery
   ports:
     - protocol: TCP
-      port: 80
+      port: 8079
       targetPort: 8080
 ---
 apiVersion: networking.k8s.io/v1
@@ -1157,7 +1165,7 @@ spec:
             ]
       containers:
         - name: web-ui
-          image: ghcr.io/ust-demaf/web-ui:latest
+          image: ghcr.io/ust-demaf/web-ui:nightly
           imagePullPolicy: IfNotPresent
           resources:
             requests:
@@ -1167,8 +1175,10 @@ spec:
               cpu: "1"
               memory: "1Gi"
           ports:
-            - containerPort: 8079
-            - containerPort: 3000
+            - containerPort: 80
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
           env:
             - name: DEMAF_ANALYSIS_MANAGER_URL
               value: "http://analysismanager:8080"
@@ -1177,13 +1187,17 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: 8079
+              port: 80
             initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
             timeoutSeconds: 15
       hostname: web-ui
       restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -1196,12 +1210,8 @@ spec:
   ports:
     - name: frontend
       protocol: TCP
-      port: 8079
-      targetPort: 8079
-    - name: backend
-      protocol: TCP
-      port: 3000
-      targetPort: 3000
+      port: 80
+      targetPort: 80
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -1219,4 +1229,4 @@ spec:
               service:
                 name: web-ui
                 port: 
-                  number: 8079
+                  number: 80

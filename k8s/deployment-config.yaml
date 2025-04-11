@@ -76,6 +76,70 @@ spec:
     requests:
       storage: 100Mi
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: rabbitmq-data-pv
+    namespace: demaf
+spec:
+  capacity:
+    storage: 10Mi
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: demaf-storage-class
+  persistentVolumeReclaimPolicy: Delete
+  hostPath:
+    path: "/mnt/data/rabbitmq/data"
+  claimRef:
+    namespace: demaf
+    name: rabbitmq-data-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rabbitmq-data-pvc
+  namespace: demaf
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 10Mi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rabbitmq-logs-pv
+  namespace: demaf
+spec:
+  capacity:
+    storage: 5Mi
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: demaf-storage-class
+  persistentVolumeReclaimPolicy: Delete
+  hostPath:
+    path: "/mnt/data/rabbitmq/logs"
+  claimRef:
+    namespace: demaf
+    name: rabbitmq-logs-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rabbitmq-logs-pvc
+  namespace: demaf
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Mi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -91,6 +155,20 @@ spec:
       labels:
         app: rabbitmq
     spec:
+      initContainers:
+        - name: fix-perms
+          image: busybox:1.37
+          command: 
+            - sh
+            - -c
+            - chown -R 999:999 /mnt/data/rabbitmq
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: rabbitmq-data
+              mountPath: /mnt/data/rabbitmq/data
+            - name: rabbitmq-logs
+              mountPath: /mnt/data/rabbitmq/logs
       containers:
         - name: rabbitmq
           image: rabbitmq:3.9-management
@@ -98,6 +176,11 @@ spec:
           ports:
             - containerPort: 5672
             - containerPort: 15672
+          volumeMounts:
+            - name: rabbitmq-data
+              mountPath: /var/lib/rabbitmq
+            - name: rabbitmq-logs
+              mountPath: /var/log/rabbitmq
           livenessProbe:
             exec:
               command:
@@ -109,6 +192,13 @@ spec:
             timeoutSeconds: 15
       hostname: demaf-rabbitmq
       restartPolicy: Always
+      volumes:
+        - name: rabbitmq-data
+          persistentVolumeClaim:
+            claimName: rabbitmq-data-pvc
+        - name: rabbitmq-logs
+          persistentVolumeClaim:
+            claimName: rabbitmq-logs-pvc
 ---
 apiVersion: v1
 kind: Service

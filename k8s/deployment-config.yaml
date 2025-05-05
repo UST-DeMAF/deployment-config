@@ -408,23 +408,17 @@ spec:
               "until nc -z rabbitmq 5672 && nc -z configurationsdatabase 5432 && nc -z tasksdatabase 5432; do echo 'waiting for dependencies'; sleep 5; done;",
             ]
         - name: populate-demaf-pvc
-          image: alpine/git:2.47.2
+          image: busybox:1.37
           imagePullPolicy: IfNotPresent
           command:
-            - sh
-            - -c
-            - |
-              if [ ! -d "/usr/share/volume" ]; then
-                git clone --depth=1 https://github.com/UST-DeMAF/deployment-config.git
-                mv deployment-config/volume /usr/share
-                chmod -R 777 /usr/share
-                rm -rf deployment-config
-              else
-                echo "Winery already cloned"
-              fi
+            [
+              "sh",
+              "-c",
+              "mkdir /mnt/demaf/helmTemplates /mnt/demaf/tadms"
+            ]
           volumeMounts:
             - name: demaf
-              mountPath: /usr/share
+              mountPath: /mnt/demaf
       containers:
         - name: analysismanager
           image: ghcr.io/ust-demaf/analysis-manager:latest
@@ -488,14 +482,14 @@ spec:
                 name: analysismanager
                 port:
                   number: 8080
-          - pathType: Exact
+          - pathType: Prefix
             path: "/demaf/status"
             backend:
               service:
                 name: analysismanager
                 port:
                   number: 8080
-          - pathType: Exact
+          - pathType: Prefix
             path: "/demaf/transform"
             backend:
               service:
@@ -1310,7 +1304,7 @@ metadata:
   namespace: demaf
 spec:
   rules:
-    - host: ust.demaf.de
+    - host: webui
       http:
         paths:
           - pathType: Prefix

@@ -595,9 +595,9 @@ spec:
             - sh
             - -c
             - |
-              if [ ! -d "/var/repository/winery" ]; then
+              if [ ! -d "/var/repository/servicetemplates" ]; then
                 git clone --depth=1 https://github.com/UST-DeMAF/deployment-config.git
-                mv deployment-config/winery /var/repository
+                mv deployment-config/winery/* /var/repository
                 chmod -R 777 /var/repository
                 rm -rf deployment-config
               else
@@ -1151,9 +1151,9 @@ spec:
             - sh
             - -c
             - |
-              if [ ! -d "/var/repository/winery" ]; then
+              if [ ! -d "/var/repository/servicetemplates" ]; then
                 git clone --depth=1 https://github.com/UST-DeMAF/deployment-config.git
-                mv deployment-config/winery /var/repository
+                mv deployment-config/winery/* /var/repository
                 chmod -R 777 /var/repository
                 rm -rf deployment-config
               else

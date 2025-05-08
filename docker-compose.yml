@@ -44,7 +44,8 @@ services:
     restart: always
     environment:
       DEMAF_ANALYSIS_MANAGER_URL: http://analysismanager:8080
-      DEMAF_WINERY_URL: http://localhost:8079
+      DEMAF_DOMAIN: localhost
+      DEMAF_WINERY_URL: http://winery:8080
     volumes:
       - demaf:/usr/share
     ports:
@@ -185,7 +186,7 @@ services:
   # Eclipse Winery
   winery:
     container_name: winery
-    image: opentosca/radon-gmt:latest
+    image: opentosca/winery:v3.0.9-M1
     environment:
       PUBLIC_HOSTNAME: "localhost"
       WINERY_FEATURE_RADON: "true"

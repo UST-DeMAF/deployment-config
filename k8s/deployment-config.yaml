@@ -4,32 +4,6 @@
 # metadata:
 #   name: demaf
 # ---
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: demaf-storage-class
-  namespace: demaf
-provisioner: kubernetes.io/no-provisioner # indicates that this StorageClass does not support automatic provisioning
-volumeBindingMode: WaitForFirstConsumer
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: demaf-pv
-  namespace: demaf
-spec:
-  capacity:
-    storage: 100Mi
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Filesystem
-  storageClassName: demaf-storage-class
-  persistentVolumeReclaimPolicy: Delete
-  hostPath:
-    path: "/mnt/data/demaf"
-  claimRef:
-    namespace: demaf
-    name: demaf-pvc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -39,29 +13,10 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  volumeMode: Filesystem
+  storageClassName: vsphere-default
   resources:
     requests:
       storage: 100Mi
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: winery-pv
-  namespace: demaf
-spec:
-  capacity:
-    storage: 100Mi
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Filesystem
-  storageClassName: demaf-storage-class
-  persistentVolumeReclaimPolicy: Delete
-  hostPath:
-    path: "/mnt/data/winery"
-  claimRef:
-    namespace: demaf
-    name: winery-pvc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -71,29 +26,10 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  volumeMode: Filesystem
+  storageClassName: vsphere-default
   resources:
     requests:
       storage: 100Mi
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-    name: rabbitmq-data-pv
-    namespace: demaf
-spec:
-  capacity:
-    storage: 10Mi
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Filesystem
-  storageClassName: demaf-storage-class
-  persistentVolumeReclaimPolicy: Delete
-  hostPath:
-    path: "/mnt/data/rabbitmq/data"
-  claimRef:
-    namespace: demaf
-    name: rabbitmq-data-pvc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -103,29 +39,10 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  volumeMode: Filesystem
+  storageClassName: vsphere-default
   resources:
     requests:
       storage: 10Mi
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: rabbitmq-logs-pv
-  namespace: demaf
-spec:
-  capacity:
-    storage: 5Mi
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Filesystem
-  storageClassName: demaf-storage-class
-  persistentVolumeReclaimPolicy: Delete
-  hostPath:
-    path: "/mnt/data/rabbitmq/logs"
-  claimRef:
-    namespace: demaf
-    name: rabbitmq-logs-pvc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -135,7 +52,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  volumeMode: Filesystem
+  storageClassName: vsphere-default
   resources:
     requests:
       storage: 5Mi
@@ -155,15 +72,24 @@ spec:
       labels:
         app: rabbitmq
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       initContainers:
         - name: fix-perms
           image: busybox:1.37
           command: 
             - sh
             - -c
-            - chown -R 999:999 /mnt/data/rabbitmq
+            - chown -R 999:999 /mnt/data/rabbitmq # uid/gid of the default rabbitmq user
           securityContext:
-            privileged: true
+            privileged: true # required to change ownership of the mounted volume
           volumeMounts:
             - name: rabbitmq-data
               mountPath: /mnt/data/rabbitmq/data
@@ -233,6 +159,15 @@ spec:
       labels:
         app: modelsdatabase
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       containers:
         - name: modelsdatabase
           image: mongo:5.0.6
@@ -285,6 +220,15 @@ spec:
       labels:
         app: configurationsdatabase
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       containers:
         - name: configurationsdatabase
           image: postgres:14.2
@@ -341,6 +285,15 @@ spec:
       labels:
         app: tasksdatabase
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       containers:
         - name: tasksdatabase
           image: postgres:14.2
@@ -397,7 +350,17 @@ spec:
       labels:
         app: analysismanager
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       initContainers:
+        # This init container waits for the dependencies to be available before starting the main container
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
@@ -407,6 +370,7 @@ spec:
               "-c",
               "until nc -z rabbitmq 5672 && nc -z configurationsdatabase 5432 && nc -z tasksdatabase 5432; do echo 'waiting for dependencies'; sleep 5; done;",
             ]
+        # This init container creates the necessary directories in the mounted volume
         - name: populate-demaf-pvc
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
@@ -512,7 +476,17 @@ spec:
       labels:
         app: modelsservice
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       initContainers:
+        # This init container waits for the dependencies to be available before starting the main container
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
@@ -587,7 +561,17 @@ spec:
       labels:
         app: winery
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       initContainers:
+        # This init container clones the winery repository and populates the PVC with the necessary files
         - name: populate-winery-pvc
           image: alpine/git:2.47.2
           imagePullPolicy: IfNotPresent
@@ -683,7 +667,17 @@ spec:
       labels:
         app: bashplugin
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       initContainers:
+        # This init container waits for the dependencies to be available before starting the main container
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
@@ -754,7 +748,17 @@ spec:
       labels:
         app: terraformplugin
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       initContainers:
+        # This init container waits for the dependencies to be available before starting the main container
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
@@ -827,7 +831,17 @@ spec:
       labels:
         app: kubernetesplugin
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       initContainers:
+        # This init container waits for the dependencies to be available before starting the main container
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
@@ -898,7 +912,17 @@ spec:
       labels:
         app: helmplugin
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       initContainers:
+        # This init container waits for the dependencies to be available before starting the main container
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
@@ -912,13 +936,6 @@ spec:
         - name: helmplugin
           image: ghcr.io/ust-demaf/helm-plugin:latest
           imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-              cpu: "250m"
-              memory: "256Mi"
-            limits:
-              cpu: "1"
-              memory: "1.5Gi"
           ports:
             - containerPort: 8086
           volumeMounts:
@@ -978,7 +995,17 @@ spec:
       labels:
         app: ansibleplugin
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       initContainers:
+        # This init container waits for the dependencies to be available before starting the main container
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
@@ -1049,7 +1076,17 @@ spec:
       labels:
         app: dockerplugin
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       initContainers:
+        # This init container waits for the dependencies to be available before starting the main container
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
@@ -1063,13 +1100,6 @@ spec:
         - name: dockerplugin
           image: ghcr.io/ust-demaf/docker-plugin:latest
           imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-              cpu: "250m"
-              memory: "256Mi"
-            limits:
-              cpu: "1"
-              memory: "1.5Gi"
           ports:
             - containerPort: 8089
           volumeMounts:
@@ -1127,7 +1157,17 @@ spec:
       labels:
         app: visualizationservice
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       initContainers:
+        # This init container waits for the dependencies to be available before starting the main container
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
@@ -1137,16 +1177,10 @@ spec:
               "-c",
               "until nc -z analysismanager 8080 && nc -z modelsservice 8081 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;",
             ]
+        # This init container clones the winery repository and populates the PVC with the necessary files
         - name: populate-winery-pvc
           image: alpine/git:2.47.2
           imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-              memory: "512Mi"
-              cpu: "0.5"
-            limits:
-              memory: "1Gi"
-              cpu: "1"
           command:
             - sh
             - -c
@@ -1166,13 +1200,6 @@ spec:
         - name: visualizationservice
           image: ghcr.io/ust-demaf/visualization-service:latest
           imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
           ports:
             - containerPort: 8082
           volumeMounts:
@@ -1237,7 +1264,17 @@ spec:
       labels:
         app: web-ui
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
       initContainers:
+        # This init container waits for the dependencies to be available before starting the main container
         - name: depends-on
           image: busybox:1.37
           imagePullPolicy: IfNotPresent
@@ -1251,13 +1288,6 @@ spec:
         - name: web-ui
           image: ghcr.io/ust-demaf/web-ui:nightly
           imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-              cpu: "200m"
-              memory: "512Mi"
-            limits:
-              cpu: "1"
-              memory: "1Gi"
           ports:
             - containerPort: 80
           volumeMounts:

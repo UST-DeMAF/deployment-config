@@ -27,7 +27,7 @@ spec:
                       - k8s-cluster3-7
       containers:
         - name: modelsdatabase
-          image: mongo:5.0.6
+          image: mongo:8.0.9
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 27017

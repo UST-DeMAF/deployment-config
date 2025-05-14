@@ -1,0 +1,77 @@
+# Deployment and Service for tasks database
+
+# tasksdatabase Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasksdatabase
+  namespace: demaf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tasksdatabase
+  template:
+    metadata:
+      labels:
+        app: tasksdatabase
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
+      containers:
+        - name: tasksdatabase
+          image: postgres:14.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: tasksdb_username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: tasksdb_password
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: tasksdb_database
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - tad
+                - -d
+                - tasks
+            initialDelaySeconds: 60
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 15
+      hostname: tasksdatabase
+      restartPolicy: Always
+---
+# tasksdatabase Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: tasksdatabase
+  namespace: demaf
+spec:
+  selector:
+    app: tasksdatabase
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

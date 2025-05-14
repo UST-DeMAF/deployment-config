@@ -1,0 +1,96 @@
+# Deployment and Service for the Docker plugin
+
+# dockerplugin Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dockerplugin
+  namespace: demaf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dockerplugin
+  template:
+    metadata:
+      labels:
+        app: dockerplugin
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
+      initContainers:
+        # Init container waiting for the dependencies to be available before starting the main container
+        - name: depends-on
+          image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
+      containers:
+        - name: dockerplugin
+          image: ghcr.io/ust-demaf/docker-plugin:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8089
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
+          env:
+            - name: ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: analysismanager_plugin_registration_url
+            - name: MODELS_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: modelsservice_url
+            - name: SPRING_RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: rabbitmq_host
+            - name: SPRING_RABBITMQ_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: rabbitmq_port
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+            initialDelaySeconds: 60
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 15
+      hostname: dockerplugin
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+---
+# dockerplugin Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: dockerplugin
+  namespace: demaf
+spec:
+  selector:
+    app: dockerplugin
+  ports:
+    - protocol: TCP
+      port: 8089
+      targetPort: 8089

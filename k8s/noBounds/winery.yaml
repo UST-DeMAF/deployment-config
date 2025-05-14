@@ -1,0 +1,119 @@
+# Deployment, Service and Ingress definitions for Winery
+
+# Winery Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: winery
+  namespace: demaf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: winery
+  template:
+    metadata:
+      labels:
+        app: winery
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
+      initContainers:
+        # Init container cloning our winery repository and populating the PVC with necessary files
+        - name: populate-winery-pvc
+          image: alpine/git:2.47.2
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              if [ ! -d "/var/repository/servicetemplates" ]; then
+                git clone --depth=1 https://github.com/UST-DeMAF/deployment-config.git
+                mv deployment-config/winery/* /var/repository
+                chmod -R 777 /var/repository
+                rm -rf deployment-config
+              else
+                echo "Winery already cloned"
+              fi
+          volumeMounts:
+            - name: winery
+              mountPath: /var/repository
+      containers:
+        - name: winery
+          image: opentosca/radon-gmt:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: winery
+              mountPath: /var/repository
+          env:
+            - name: PUBLIC_HOSTNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: winery_public_hostname
+            - name: WINERY_FEATURE_RADON
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: winery_feature_radon
+            - name: WINERY_REPOSITORY_PROVIDER
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: winery_repository_provider
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 60
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 15
+      hostname: winery
+      restartPolicy: Always
+      volumes:
+        - name: winery
+          persistentVolumeClaim:
+            claimName: winery-pvc
+---
+# Winery Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: winery
+  namespace: demaf
+spec:
+  selector:
+    app: winery
+  ports:
+    - protocol: TCP
+      port: 8079
+      targetPort: 8080
+---
+# Winery Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: winery-ingress
+  namespace: demaf
+spec:
+  rules:
+    - host: winery
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: winery
+                port:
+                  number: 80

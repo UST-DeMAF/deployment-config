@@ -4,6 +4,15 @@ metadata:
   name: shell
   namespace: demaf
 spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                  - k8s-cluster3-7
   containers:
     - name: nginx
       image: nginx

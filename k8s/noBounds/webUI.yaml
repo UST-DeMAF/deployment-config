@@ -1,0 +1,106 @@
+# Deployment, Service and Ingress definitions for the web UI
+
+# web-ui Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-ui
+  namespace: demaf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-ui
+  template:
+    metadata:
+      labels:
+        app: web-ui
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
+      initContainers:
+        # Init container waiting for the dependencies to be available before starting the main container
+        - name: depends-on
+          image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z analysismanager 8080 && nc -z rabbitmq 5672 && nc -z winery 80; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
+      containers:
+        - name: web-ui
+          image: ghcr.io/ust-demaf/web-ui:nightly
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
+          env:
+            - name: DEMAF_ANALYSIS_MANAGER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: analysismanager_url
+            - name: DEMAF_WINERY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: winery_url
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 60
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 15
+      hostname: web-ui
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+---
+# web-ui Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-ui
+  namespace: demaf
+spec:
+  selector:
+    app: web-ui
+  ports:
+    - name: frontend
+      protocol: TCP
+      port: 80
+      targetPort: 80
+---
+# web-ui Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-ui-ingress
+  namespace: demaf
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: web-ui
+                port: 
+                  number: 80

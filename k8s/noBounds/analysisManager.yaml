@@ -1,0 +1,124 @@
+# Deployment, Service and Ingress for the analysis manager
+
+# analysismanager Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analysismanager
+  namespace: demaf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: analysismanager
+  template:
+    metadata:
+      labels:
+        app: analysismanager
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
+      initContainers:
+        # Init container waiting for the dependencies to be available before starting the main container
+        - name: depends-on
+          image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z rabbitmq 5672 && nc -z configurationsdatabase 5432 && nc -z tasksdatabase 5432; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
+        # Init container creating the necessary directories in the mounted volume
+        - name: populate-demaf-pvc
+          image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "mkdir /mnt/demaf/helmTemplates /mnt/demaf/tadms"
+            ]
+          volumeMounts:
+            - name: demaf
+              mountPath: /mnt/demaf
+      containers:
+        - name: analysismanager
+          image: ghcr.io/ust-demaf/analysis-manager:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_APPLICATION_JSON
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: analysismanager_spring_json
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 15
+      hostname: analysismanager
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+---
+# analysismanager Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: analysismanager
+  namespace: demaf
+spec:
+  selector:
+    app: analysismanager
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+# analysismanager Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: analysismanager-ingress
+  namespace: demaf
+spec:
+  rules:
+    - host: analysismanager
+      http:
+        paths:
+          - pathType: Exact
+            path: "/demaf/plugins"
+            backend:
+              service:
+                name: analysismanager
+                port:
+                  number: 8080
+          - pathType: Prefix
+            path: "/demaf/status"
+            backend:
+              service:
+                name: analysismanager
+                port:
+                  number: 8080
+          - pathType: Prefix
+            path: "/demaf/transform"
+            backend:
+              service:
+                name: analysismanager
+                port:
+                  number: 8080

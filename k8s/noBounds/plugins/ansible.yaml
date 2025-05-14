@@ -1,0 +1,96 @@
+# Deployment and Service for the Ansible plugin
+
+# ansibleplugin Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ansibleplugin
+  namespace: demaf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ansibleplugin
+  template:
+    metadata:
+      labels:
+        app: ansibleplugin
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
+      initContainers:
+        # Init container waiting for the dependencies to be available before starting the main container
+        - name: depends-on
+          image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
+      containers:
+        - name: ansibleplugin
+          image: ghcr.io/ust-demaf/ansible-mps-plugin:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8087
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
+          env:
+            - name: ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: analysismanager_plugin_registration_url
+            - name: MODELS_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: modelsservice_url
+            - name: SPRING_RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: rabbitmq_host
+            - name: SPRING_RABBITMQ_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: rabbitmq_port
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8087
+            initialDelaySeconds: 60
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 15
+      hostname: ansibleplugin
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+---
+# ansibleplugin Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ansibleplugin
+  namespace: demaf
+spec:
+  selector:
+    app: ansibleplugin
+  ports:
+    - protocol: TCP
+      port: 8087
+      targetPort: 8087

@@ -1,0 +1,77 @@
+# Deployment and Service for configurations database
+
+# configurationsdatabase Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configurationsdatabase
+  namespace: demaf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: configurationsdatabase
+  template:
+    metadata:
+      labels:
+        app: configurationsdatabase
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-7
+      containers:
+        - name: configurationsdatabase
+          image: postgres:14.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: configurationsdb_username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: configurationsdb_password
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: configurationsdb_database
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - tad
+                - -d
+                - configurations
+            initialDelaySeconds: 60
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 15
+      hostname: configurationsdatabase
+      restartPolicy: Always
+---
+# configurationsdatabase Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: configurationsdatabase
+  namespace: demaf
+spec:
+  selector:
+    app: configurationsdatabase
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

@@ -31,6 +31,9 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
+          volumeMounts:
+            - name: configurationsdb
+              mountPath: /var/lib/postgresql/data
           env:
             - name: POSTGRES_USER
               valueFrom:
@@ -60,6 +63,10 @@ spec:
             timeoutSeconds: 15
       hostname: configurationsdatabase
       restartPolicy: Always
+      volumes:
+        - name: configurationsdb
+          persistentVolumeClaim:
+            claimName: configurationsdb-pvc
 ---
 # configurationsdatabase Service
 apiVersion: v1

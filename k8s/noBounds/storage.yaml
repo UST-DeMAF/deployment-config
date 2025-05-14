@@ -59,3 +59,33 @@ spec:
   resources:
     requests:
       storage: 5Mi
+---
+# PVC for the configurations database
+# Used to store the configurations database data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: configurationsdb-pvc
+  namespace: demaf
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: vsphere-default
+  resources:
+    requests:
+      storage: 100Mi
+---
+# PVC for the tasks database
+# Used to store the tasks database data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tasksdb-pvc
+  namespace: demaf
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: vsphere-default
+  resources:
+    requests:
+      storage: 100Mi

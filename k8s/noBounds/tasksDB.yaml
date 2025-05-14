@@ -33,7 +33,7 @@ spec:
             - containerPort: 5432
           volumeMounts:
             - name: tasksdb
-              mountPath: /var/lib/postgresql/data/pgdata
+              mountPath: /var/lib/postgresql/data
           env:
             - name: POSTGRES_USER
               valueFrom:

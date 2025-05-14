@@ -31,6 +31,9 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 27017
+          volumeMounts:
+            - name: modelsdb
+              mountPath: /data/db
           env:
             - name: MONGO_INITDB_ROOT_USERNAME
               valueFrom:
@@ -54,6 +57,10 @@ spec:
             timeoutSeconds: 15
       hostname: modelsdatabase
       restartPolicy: Always
+      volumes:
+        - name: modelsdb
+          persistentVolumeClaim:
+            claimName: modelsdb-pvc
 ---
 # modelsdatabase Service
 apiVersion: v1

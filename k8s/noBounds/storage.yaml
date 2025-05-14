@@ -89,3 +89,18 @@ spec:
   resources:
     requests:
       storage: 100Mi
+---
+# PVC for the models database
+# Used to store the models database data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: modelsdb-pvc
+  namespace: demaf
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: vsphere-default
+  resources:
+    requests:
+      storage: 100Mi

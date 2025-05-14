@@ -50,11 +50,10 @@ spec:
           livenessProbe:
             exec:
               command:
-                - pg_isready
-                - -U
-                - tad
-                - -d
-                - configurations
+                - sh
+                - -c
+                - |
+                  pg_isready -U tad -d configurations
             initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10

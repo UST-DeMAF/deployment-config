@@ -44,7 +44,7 @@ spec:
             [
               "sh",
               "-c",
-              "mkdir /mnt/demaf/helmTemplates /mnt/demaf/tadms"
+              "mkdir -p /mnt/demaf/helmTemplates /mnt/demaf/tadms"
             ]
           volumeMounts:
             - name: demaf

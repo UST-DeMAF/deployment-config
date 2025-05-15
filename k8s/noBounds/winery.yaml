@@ -98,22 +98,3 @@ spec:
     - protocol: TCP
       port: 8079
       targetPort: 8080
----
-# Winery Ingress
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: winery-ingress
-  namespace: demaf
-spec:
-  rules:
-    - host: winery
-      http:
-        paths:
-          - pathType: Prefix
-            path: "/"
-            backend:
-              service:
-                name: winery
-                port:
-                  number: 80

@@ -15,15 +15,12 @@ volumes:
       device: ./winery
 
 services:
+
 # Web-UI
   web-ui:
-#    image: ghcr.io/ust-demaf/web-ui:testing
-    image: web-ui:testing
+    image: ghcr.io/ust-demaf/web-ui:latest
     hostname: web-ui
     container_name: web-ui
-    build:
-      context: ../web-ui
-      dockerfile: Dockerfile
     depends_on:
       ansibleplugin:
         condition: service_healthy
@@ -126,7 +123,7 @@ services:
 
   # Core Services
   analysismanager:
-    image: ghcr.io/ust-demaf/analysis-manager:testing
+    image: ghcr.io/ust-demaf/analysis-manager:latest
     hostname: analysismanager
     container_name: analysismanager
     depends_on:
@@ -350,7 +347,7 @@ services:
       retries: 3
 
   visualizationservice:
-    image: ghcr.io/ust-demaf/visualization-service:testing
+    image: ghcr.io/ust-demaf/visualization-service:latest
     hostname: visualizationservice
     container_name: visualizationservice
     depends_on:

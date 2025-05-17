@@ -47,8 +47,8 @@ spec:
               mountPath: /var/repository
       containers:
         - name: winery
-          image: opentosca/radon-gmt:latest
-          imagePullPolicy: Always
+          image: opentosca/winery:v3.0.9-M1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           volumeMounts:

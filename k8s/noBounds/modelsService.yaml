@@ -76,6 +76,12 @@ spec:
                 configMapKeyRef:
                   name: demaf-config
                   key: modelsservice_tadm_output_directory
+            - name: LOGGING_LEVEL_ROOT
+              value: DEBUG
+            - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
+              value: DEBUG
+            - name: LOGGING_LEVEL_
+              value: DEBUG
           livenessProbe:
             httpGet:
               path: /actuator/health

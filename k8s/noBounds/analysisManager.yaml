@@ -51,7 +51,7 @@ spec:
               mountPath: /mnt/demaf
       containers:
         - name: analysismanager
-          image: ghcr.io/ust-demaf/analysis-manager:latest
+          image: ghcr.io/ust-demaf/analysis-manager:testing
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -61,6 +61,12 @@ spec:
                 configMapKeyRef:
                   name: demaf-config
                   key: analysismanager_spring_json
+            - name: LOGGING_LEVEL_ROOT
+              value: DEBUG
+            - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
+              value: DEBUG
+            - name: LOGGING_LEVEL_
+              value: DEBUG
           livenessProbe:
             httpGet:
               path: /actuator/health

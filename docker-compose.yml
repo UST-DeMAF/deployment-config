@@ -1,5 +1,5 @@
 volumes:
-  demaf: 
+  demaf:
     driver: local
     driver_opts:
       type: 'none'
@@ -15,9 +15,10 @@ volumes:
       device: ./winery
 
 services:
+
+# Web-UI
   web-ui:
-    image: ghcr.io/ust-demaf/web-ui:testing #TODO: Change to latest once done
-#    build: ../web-ui #Build locally
+    image: ghcr.io/ust-demaf/web-ui:latest
     hostname: web-ui
     container_name: web-ui
     depends_on:
@@ -38,13 +39,16 @@ services:
       winery:
         condition: service_healthy
     restart: always
+    environment:
+      DEMAF_ANALYSIS_MANAGER_URL: http://analysismanager:8080
+      DEMAF_DOMAIN: localhost
+      DEMAF_WINERY_URL: http://winery:8080
     volumes:
       - demaf:/usr/share
     ports:
-      - "8079:8079"
-      - "3000:3000"
+      - "80:80"
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8079/"]
+      test: ["CMD", "curl", "-sf", "http://localhost:80/"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -119,7 +123,7 @@ services:
 
   # Core Services
   analysismanager:
-    image: ghcr.io/ust-demaf/analysis-manager:testing #TODO: Swap back to latest
+    image: ghcr.io/ust-demaf/analysis-manager:latest
     hostname: analysismanager
     container_name: analysismanager
     depends_on:
@@ -150,7 +154,7 @@ services:
       retries: 5
 
   modelsservice:
-    image: ghcr.io/ust-demaf/models-service:testing
+    image: ghcr.io/ust-demaf/models-service:latest
     hostname: modelsservice
     container_name: modelsservice
     depends_on:
@@ -179,7 +183,7 @@ services:
   # Eclipse Winery
   winery:
     container_name: winery
-    image: opentosca/radon-gmt:latest
+    image: opentosca/winery:v3.0.9-M1
     environment:
       PUBLIC_HOSTNAME: "localhost"
       WINERY_FEATURE_RADON: "true"
@@ -187,16 +191,16 @@ services:
     volumes:
       - winery:/var/repository
     ports:
-      - 80:8080
+      - 8079:8080
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/"]
       interval: 10s
       timeout: 5s
       retries: 3
-  
+
   # Plugins
   bashplugin:
-    image: ghcr.io/ust-demaf/bash-plugin:testing
+    image: ghcr.io/ust-demaf/bash-plugin:latest
     hostname: bashplugin
     container_name: bashplugin
     depends_on:
@@ -245,7 +249,7 @@ services:
       retries: 3
 
   kubernetesplugin:
-    image: ghcr.io/ust-demaf/kubernetes-mps-plugin:testing
+    image: ghcr.io/ust-demaf/kubernetes-mps-plugin:latest
     hostname: kubernetesplugin
     container_name: kubernetesplugin
     depends_on:
@@ -269,7 +273,7 @@ services:
       retries: 3
 
   helmplugin:
-    image: ghcr.io/ust-demaf/helm-plugin:testing
+    image: ghcr.io/ust-demaf/helm-plugin:latest
     hostname: helmplugin
     container_name: helmplugin
     depends_on:
@@ -295,7 +299,7 @@ services:
       retries: 3
 
   ansibleplugin:
-    image: ghcr.io/ust-demaf/ansible-mps-plugin:testing
+    image: ghcr.io/ust-demaf/ansible-mps-plugin:latest
     hostname: ansibleplugin
     container_name: ansibleplugin
     depends_on:
@@ -319,7 +323,7 @@ services:
       retries: 3
 
   dockerplugin:
-    image: ghcr.io/ust-demaf/docker-plugin:testing
+    image: ghcr.io/ust-demaf/docker-plugin:latest
     hostname: dockerplugin
     container_name: dockerplugin
     depends_on:
@@ -343,7 +347,7 @@ services:
       retries: 3
 
   visualizationservice:
-    image: ghcr.io/ust-demaf/visualization-service:testing
+    image: ghcr.io/ust-demaf/visualization-service:latest
     hostname: visualizationservice
     container_name: visualizationservice
     depends_on:

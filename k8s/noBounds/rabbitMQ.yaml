@@ -52,6 +52,17 @@ spec:
               mountPath: /var/lib/rabbitmq
             - name: rabbitmq-logs
               mountPath: /var/log/rabbitmq
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: rabbitmq_username
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: rabbitmq_password
           livenessProbe:
             exec:
               command:

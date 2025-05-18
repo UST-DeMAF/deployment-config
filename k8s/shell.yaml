@@ -38,6 +38,3 @@ spec:
     - name: winery-storage
       persistentVolumeClaim:
         claimName: winery-pvc
-  hostNetwork: true
-  dnsPolicy: Default
----

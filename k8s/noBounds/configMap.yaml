@@ -4,8 +4,9 @@ metadata:
   name: demaf-config
   namespace: demaf
 data:
+  rabbitmq_username: "tad"
+  rabbitmq_password: "tad"
   rabbitmq_host: "rabbitmq"
-  rabbitmq_port: "5672"
 
   modelsdb_username: "tad"
   modelsdb_password: "tad"
@@ -29,7 +30,9 @@ data:
                 "spring.tasks-datasource.username": "tad",
                 "spring.tasks-datasource.password": "tad",
                 "models-service.url": "http://modelsservice:8081",
-                "spring.rabbitmq.host": "rabbitmq"
+                "spring.rabbitmq.host": "rabbitmq",
+                "spring.rabbitmq.username": "tad",
+                "spring.rabbitmq.password": "tad"
                 }'
   analysismanager_url: "http://analysismanager:8080"
   analysismanager_plugin_registration_url: "http://analysismanager:8080/plugin-registration"

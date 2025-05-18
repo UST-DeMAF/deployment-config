@@ -61,11 +61,16 @@ spec:
                 configMapKeyRef:
                   name: demaf-config
                   key: rabbitmq_host
-            - name: SPRING_RABBITMQ_PORT
+            - name: SPRING_RABBITMQ_USERNAME
               valueFrom:
                 configMapKeyRef:
                   name: demaf-config
-                  key: rabbitmq_port
+                  key: rabbitmq_username
+            - name: SPRING_RABBITMQ_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: rabbitmq_password
           livenessProbe:
             httpGet:
               path: /actuator/health

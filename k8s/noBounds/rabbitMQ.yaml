@@ -24,22 +24,7 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - k8s-cluster3-7
-      initContainers:
-        # Fix permissions of the mounted volumes as RabbitMQ requires the mounted volumes to be owned by the user with uid 999
-        - name: fix-perms
-          image: busybox:1.37
-          command: 
-            - sh
-            - -c
-            - chown -R 999:999 /mnt/data/rabbitmq # uid/gid of the default rabbitmq user
-          securityContext:
-            privileged: true # required to change ownership of the mounted volume
-          volumeMounts:
-            - name: rabbitmq-data
-              mountPath: /mnt/data/rabbitmq/data
-            - name: rabbitmq-logs
-              mountPath: /mnt/data/rabbitmq/logs
+                      - k8s-cluster3-5
       containers:
         - name: rabbitmq
           image: rabbitmq:3.9-management
@@ -47,11 +32,6 @@ spec:
           ports:
             - containerPort: 5672
             - containerPort: 15672
-          volumeMounts:
-            - name: rabbitmq-data
-              mountPath: /var/lib/rabbitmq
-            - name: rabbitmq-logs
-              mountPath: /var/log/rabbitmq
           env:
             - name: RABBITMQ_DEFAULT_USER
               valueFrom:
@@ -74,13 +54,6 @@ spec:
             timeoutSeconds: 15
       hostname: demaf-rabbitmq
       restartPolicy: Always
-      volumes:
-        - name: rabbitmq-data
-          persistentVolumeClaim:
-            claimName: rabbitmq-data-pvc
-        - name: rabbitmq-logs
-          persistentVolumeClaim:
-            claimName: rabbitmq-logs-pvc
 ---
 # RabbitMQ Service
 apiVersion: v1

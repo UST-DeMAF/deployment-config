@@ -24,7 +24,7 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - k8s-cluster3-7
+                      - k8s-cluster3-5
       initContainers:
         # Init container cloning our winery repository and populating the PVC with necessary files
         - name: populate-winery-pvc

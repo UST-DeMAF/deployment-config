@@ -24,7 +24,7 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - k8s-cluster3-7
+                      - k8s-cluster3-5
       initContainers:
         # Init container waiting for the dependencies to be available before starting the main container
         - name: depends-on

@@ -24,16 +24,13 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - k8s-cluster3-7
+                      - k8s-cluster3-5
       containers:
         - name: tasksdatabase
           image: postgres:17.5
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
-          volumeMounts:
-            - name: tasksdb
-              mountPath: /var/lib/postgresql/data
           env:
             - name: POSTGRES_USER
               valueFrom:
@@ -65,10 +62,6 @@ spec:
             timeoutSeconds: 15
       hostname: tasksdatabase
       restartPolicy: Always
-      volumes:
-        - name: tasksdb
-          persistentVolumeClaim:
-            claimName: tasksdb-pvc
 ---
 # tasksdatabase Service
 apiVersion: v1

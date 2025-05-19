@@ -4,6 +4,8 @@ metadata:
   name: demaf-config
   namespace: demaf
 data:
+  domain: "try.demaf.de"
+
   rabbitmq_username: "tad"
   rabbitmq_password: "tad"
   rabbitmq_host: "rabbitmq"

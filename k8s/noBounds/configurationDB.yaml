@@ -24,16 +24,13 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - k8s-cluster3-7
+                      - k8s-cluster3-5
       containers:
         - name: configurationsdatabase
           image: postgres:17.5
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
-          volumeMounts:
-            - name: configurationsdb
-              mountPath: /var/lib/postgresql/data
           env:
             - name: POSTGRES_USER
               valueFrom:
@@ -65,10 +62,6 @@ spec:
             timeoutSeconds: 15
       hostname: configurationsdatabase
       restartPolicy: Always
-      volumes:
-        - name: configurationsdb
-          persistentVolumeClaim:
-            claimName: configurationsdb-pvc
 ---
 # configurationsdatabase Service
 apiVersion: v1

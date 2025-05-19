@@ -3,6 +3,11 @@ kind: ConfigMap
 metadata:
   name: demaf-config
   namespace: demaf
+  labels:
+    app.kubernetes.io/name: demaf-config
+    app.kubernetes.io/version: v3.0.0
+    app.kubernetes.io/component: config
+    app.kubernetes.io/part-of: demaf
 data:
   rabbitmq_username: "tad"
   rabbitmq_password: "tad"

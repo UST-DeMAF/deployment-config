@@ -6,6 +6,11 @@ kind: Deployment
 metadata:
   name: rabbitmq
   namespace: demaf
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/version: v3.0.0
+    app.kubernetes.io/component: rabbitmq
+    app.kubernetes.io/part-of: demaf
 spec:
   replicas: 1
   selector:

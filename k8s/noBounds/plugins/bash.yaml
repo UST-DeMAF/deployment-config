@@ -6,6 +6,11 @@ kind: Deployment
 metadata:
   name: bashplugin
   namespace: demaf
+  labels:
+    app.kubernetes.io/name: bashplugin
+    app.kubernetes.io/version: v3.0.0
+    app.kubernetes.io/component: plugin
+    app.kubernetes.io/part-of: demaf
 spec:
   replicas: 1
   selector:

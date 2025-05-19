@@ -6,6 +6,11 @@ kind: Deployment
 metadata:
   name: ansibleplugin
   namespace: demaf
+  labels:
+    app.kubernetes.io/name: ansibleplugin
+    app.kubernetes.io/version: v3.0.0
+    app.kubernetes.io/component: mps-plugin
+    app.kubernetes.io/part-of: demaf
 spec:
   replicas: 1
   selector:

@@ -7,6 +7,11 @@ kind: PersistentVolumeClaim
 metadata:
   name: demaf-pvc
   namespace: demaf
+  labels:
+    app.kubernetes.io/name: demaf-pvc
+    app.kubernetes.io/version: v3.0.0
+    app.kubernetes.io/component: pvc
+    app.kubernetes.io/part-of: demaf
 spec:
   accessModes:
     - ReadWriteOnce
@@ -22,6 +27,11 @@ kind: PersistentVolumeClaim
 metadata:
   name: winery-pvc
   namespace: demaf
+  labels:
+    app.kubernetes.io/name: winery-pvc
+    app.kubernetes.io/version: v3.0.0
+    app.kubernetes.io/component: pvc
+    app.kubernetes.io/part-of: demaf
 spec:
   accessModes:
     - ReadWriteOnce

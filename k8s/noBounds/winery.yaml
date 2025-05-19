@@ -18,8 +18,13 @@ spec:
       app: winery
   template:
     metadata:
+      name: winery
       labels:
-        app: winery
+        app.kubernetes.io/name: winery
+        app.kubernetes.io/instance: winery-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: winery
+        app.kubernetes.io/part-of: demaf
     spec:
       affinity:
         nodeAffinity:

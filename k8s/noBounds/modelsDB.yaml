@@ -18,8 +18,13 @@ spec:
       app: modelsdatabase
   template:
     metadata:
+      name: modelsdatabase
       labels:
-        app: modelsdatabase
+        app.kubernetes.io/name: modelsdatabase
+        app.kubernetes.io/instance: modelsdatabase-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: database
+        app.kubernetes.io/part-of: demaf
     spec:
       affinity:
         nodeAffinity:

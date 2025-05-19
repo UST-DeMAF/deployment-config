@@ -18,8 +18,13 @@ spec:
       app: analysismanager
   template:
     metadata:
+      name: analysismanager
       labels:
-        app: analysismanager
+        app.kubernetes.io/name: analysismanager
+        app.kubernetes.io/instance: analysismanager-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: manager
+        app.kubernetes.io/part-of: demaf
     spec:
       affinity:
         nodeAffinity:

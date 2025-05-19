@@ -18,8 +18,13 @@ spec:
       app: modelsservice
   template:
     metadata:
+      name: modelsservice
       labels:
-        app: modelsservice
+        app.kubernetes.io/name: modelsservice
+        app.kubernetes.io/instance: modelsservice-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: service
+        app.kubernetes.io/part-of: demaf
     spec:
       affinity:
         nodeAffinity:

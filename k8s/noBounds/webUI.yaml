@@ -18,8 +18,13 @@ spec:
       app: web-ui
   template:
     metadata:
+      name: web-ui
       labels:
-        app: web-ui
+        app.kubernetes.io/name: web-ui
+        app.kubernetes.io/instance: web-ui-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: node-nginx
+        app.kubernetes.io/part-of: demaf
     spec:
       affinity:
         nodeAffinity:

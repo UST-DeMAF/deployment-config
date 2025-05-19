@@ -18,8 +18,13 @@ spec:
       app: tasksdatabase
   template:
     metadata:
+      name: tasksdatabase
       labels:
-        app: tasksdatabase
+        app.kubernetes.io/name: tasksdatabase
+        app.kubernetes.io/instance: tasksdatabase-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: database
+        app.kubernetes.io/part-of: demaf
     spec:
       affinity:
         nodeAffinity:

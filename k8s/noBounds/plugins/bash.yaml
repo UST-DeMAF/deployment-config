@@ -18,8 +18,13 @@ spec:
       app: bashplugin
   template:
     metadata:
+      name: bashplugin
       labels:
-        app: bashplugin
+        app.kubernetes.io/name: bashplugin
+        app.kubernetes.io/instance: bashplugin-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: plugin
+        app.kubernetes.io/part-of: demaf
     spec:
       affinity:
         nodeAffinity:

@@ -18,8 +18,13 @@ spec:
       app: dockerplugin
   template:
     metadata:
+      name: dockerplugin
       labels:
-        app: dockerplugin
+        app.kubernetes.io/name: dockerplugin
+        app.kubernetes.io/instance: dockerplugin-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: plugin
+        app.kubernetes.io/part-of: demaf
     spec:
       affinity:
         nodeAffinity:

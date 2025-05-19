@@ -18,8 +18,13 @@ spec:
       app: configurationsdatabase
   template:
     metadata:
+      name: configurationsdatabase
       labels:
-        app: configurationsdatabase
+        app.kubernetes.io/name: configurationsdatabase
+        app.kubernetes.io/instance: configurationsdatabase-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: database
+        app.kubernetes.io/part-of: demaf
     spec:
       affinity:
         nodeAffinity:

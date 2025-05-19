@@ -18,8 +18,13 @@ spec:
       app: terraformplugin
   template:
     metadata:
+      name: terraformplugin
       labels:
-        app: terraformplugin
+        app.kubernetes.io/name: terraformplugin
+        app.kubernetes.io/instance: terraformplugin-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: mps-plugin
+        app.kubernetes.io/part-of: demaf
     spec:
       affinity:
         nodeAffinity:

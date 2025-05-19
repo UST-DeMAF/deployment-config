@@ -18,8 +18,13 @@ spec:
       app: kubernetesplugin
   template:
     metadata:
+      name: kubernetesplugin
       labels:
-        app: kubernetesplugin
+        app.kubernetes.io/name: kubernetesplugin
+        app.kubernetes.io/instance: kubernetesplugin-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: mps-plugin
+        app.kubernetes.io/part-of: demaf
     spec:
       affinity:
         nodeAffinity:

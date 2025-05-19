@@ -18,8 +18,13 @@ spec:
       app: visualizationservice
   template:
     metadata:
+      name: visualizationservice
       labels:
-        app: visualizationservice
+        app.kubernetes.io/name: visualizationservice
+        app.kubernetes.io/instance: visualizationservice-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: plugin
+        app.kubernetes.io/part-of: demaf
     spec:
       affinity:
         nodeAffinity:

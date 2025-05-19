@@ -17,21 +17,11 @@ spec:
     - name: nginx
       image: nginx
       volumeMounts:
-        - mountPath: /mnt/data/rabbitmq/data
-          name: rabbitmq-data-storage
-        - mountPath: /mnt/data/rabbitmq/logs
-          name: rabbitmq-logs-storage
         - mountPath: /mnt/data/demaf
           name: demaf-storage
         - mountPath: /mnt/data/winery
           name: winery-storage
   volumes:
-    - name: rabbitmq-data-storage
-      persistentVolumeClaim:
-        claimName: rabbitmq-data-pvc
-    - name: rabbitmq-logs-storage
-      persistentVolumeClaim:
-        claimName: rabbitmq-logs-pvc
     - name: demaf-storage
       persistentVolumeClaim:
         claimName: demaf-pvc

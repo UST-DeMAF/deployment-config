@@ -84,19 +84,19 @@ spec:
                   key: modelsservice_url
             - name: SPRING_RABBITMQ_HOST
               valueFrom:
-                configMapKeyRef:
-                  name: demaf-config
-                  key: rabbitmq_host
+                secretKeyRef:
+                  name: rabbitmq-default-user
+                  key: host
             - name: SPRING_RABBITMQ_USERNAME
               valueFrom:
-                configMapKeyRef:
-                  name: demaf-config
-                  key: rabbitmq_username
+                secretKeyRef:
+                  name: rabbitmq-default-user
+                  key: username
             - name: SPRING_RABBITMQ_PASSWORD
               valueFrom:
-                configMapKeyRef:
-                  name: demaf-config
-                  key: rabbitmq_password
+                secretKeyRef:
+                  name: rabbitmq-default-user
+                  key: password
             - name: WINERY_PATH
               valueFrom:
                 configMapKeyRef:

@@ -66,6 +66,21 @@ spec:
                 configMapKeyRef:
                   name: demaf-config
                   key: analysismanager_spring_json
+            - name: SPRING_RABBITMQ_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-default-user
+                  key: host
+            - name: SPRING_RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-default-user
+                  key: username
+            - name: SPRING_RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-default-user
+                  key: password
             - name: LOGGING_LEVEL_ROOT
               value: DEBUG
             - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK

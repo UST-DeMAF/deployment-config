@@ -9,10 +9,6 @@ metadata:
     app.kubernetes.io/component: config
     app.kubernetes.io/part-of: demaf
 data:
-  rabbitmq_username: "tad"
-  rabbitmq_password: "tad"
-  rabbitmq_host: "rabbitmq"
-
   modelsdb_username: "tad"
   modelsdb_password: "tad"
   modelsdb_database: "modelsdatabase"
@@ -34,10 +30,7 @@ data:
                 "spring.tasks-datasource.jdbcUrl": "jdbc:postgresql://tasksdatabase:5432/tasks",
                 "spring.tasks-datasource.username": "tad",
                 "spring.tasks-datasource.password": "tad",
-                "models-service.url": "http://modelsservice:8081",
-                "spring.rabbitmq.host": "rabbitmq",
-                "spring.rabbitmq.username": "tad",
-                "spring.rabbitmq.password": "tad"
+                "models-service.url": "http://modelsservice:8081"
                 }'
   analysismanager_url: "http://analysismanager:8080"
   analysismanager_plugin_registration_url: "http://analysismanager:8080/plugin-registration"

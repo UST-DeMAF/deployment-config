@@ -1,80 +1,29 @@
 # Deployment and Service definitions for the RabbitMQ
 
-# RabbitMQ Deployment
-apiVersion: apps/v1
-kind: Deployment
+# This uses the RabbitMQ Cluster Operator to manage RabbitMQ clusters in Kubernetes.
+# See https://www.rabbitmq.com/kubernetes/operator/operator-overview for more details.
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
 metadata:
   name: rabbitmq
   namespace: demaf
   labels:
-    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/name: rabbitmq-cluster-operator
     app.kubernetes.io/version: v3.0.0
-    app.kubernetes.io/component: rabbitmq
+    app.kubernetes.io/component: rabbitmq-operator
     app.kubernetes.io/part-of: demaf
 spec:
   replicas: 1
-  selector:
-    matchLabels:
-      app: rabbitmq
-  template:
-    metadata:
-      labels:
-        app: rabbitmq
-    spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      - k8s-cluster3-5
-      containers:
-        - name: rabbitmq
-          image: rabbitmq:3.9-management
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 5672
-            - containerPort: 15672
-          env:
-            - name: RABBITMQ_DEFAULT_USER
-              valueFrom:
-                configMapKeyRef:
-                  name: demaf-config
-                  key: rabbitmq_username
-            - name: RABBITMQ_DEFAULT_PASS
-              valueFrom:
-                configMapKeyRef:
-                  name: demaf-config
-                  key: rabbitmq_password
-          livenessProbe:
-            exec:
-              command:
-                - rabbitmqctl
-                - status
-            initialDelaySeconds: 60
-            failureThreshold: 3
-            periodSeconds: 60
-            timeoutSeconds: 15
-      hostname: demaf-rabbitmq
-      restartPolicy: Always
----
-# RabbitMQ Service
-apiVersion: v1
-kind: Service
-metadata:
-  name: rabbitmq
-  namespace: demaf
-spec:
-  selector:
-    app: rabbitmq
-  ports:
-    - name: amqp
-      protocol: TCP
-      port: 5672
-      targetPort: 5672
-    - name: management
-      protocol: TCP
-      port: 15672
-      targetPort: 15672
+  persistence:
+    storageClassName: vsphere-default
+    storage: 10Gi
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                  - k8s-cluster3-5
+  

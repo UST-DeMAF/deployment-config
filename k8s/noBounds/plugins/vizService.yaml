@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: visualizationservice
+      app.kubernetes.io/name: visualizationservice
   template:
     metadata:
       name: visualizationservice
@@ -133,7 +133,7 @@ metadata:
   namespace: demaf
 spec:
   selector:
-    app: visualizationservice
+    app.kubernetes.io/name: visualizationservice
   ports:
     - protocol: TCP
       port: 8082

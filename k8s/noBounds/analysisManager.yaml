@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: analysismanager
+      app.kubernetes.io/name: analysismanager
   template:
     metadata:
       name: analysismanager
@@ -115,7 +115,7 @@ metadata:
   namespace: demaf
 spec:
   selector:
-    app: analysismanager
+    app.kubernetes.io/name: analysismanager
   ports:
     - protocol: TCP
       port: 8080

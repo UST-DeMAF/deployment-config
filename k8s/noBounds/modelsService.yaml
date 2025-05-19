@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: modelsservice
+      app.kubernetes.io/name: modelsservice
   template:
     metadata:
       name: modelsservice
@@ -115,7 +115,7 @@ metadata:
   namespace: demaf
 spec:
   selector:
-    app: modelsservice
+    app.kubernetes.io/name: modelsservice
   ports:
     - protocol: TCP
       port: 8081

@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ansibleplugin
+      app.kubernetes.io/name: ansibleplugin
   template:
     metadata:
       name: ansibleplugin
@@ -104,7 +104,7 @@ metadata:
   namespace: demaf
 spec:
   selector:
-    app: ansibleplugin
+    app.kubernetes.io/name: ansibleplugin
   ports:
     - protocol: TCP
       port: 8087

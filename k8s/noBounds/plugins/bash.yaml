@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: bashplugin
+      app.kubernetes.io/name: bashplugin
   template:
     metadata:
       name: bashplugin
@@ -104,7 +104,7 @@ metadata:
   namespace: demaf
 spec:
   selector:
-    app: bashplugin
+    app.kubernetes.io/name: bashplugin
   ports:
     - protocol: TCP
       port: 8083

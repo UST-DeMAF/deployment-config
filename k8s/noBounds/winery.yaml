@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: winery
+      app.kubernetes.io/name: winery
   template:
     metadata:
       name: winery
@@ -103,7 +103,7 @@ metadata:
   namespace: demaf
 spec:
   selector:
-    app: winery
+    app.kubernetes.io/name: winery
   ports:
     - protocol: TCP
       port: 8079

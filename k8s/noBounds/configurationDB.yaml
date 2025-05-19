@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: configurationsdatabase
+      app.kubernetes.io/name: configurationsdatabase
   template:
     metadata:
       name: configurationsdatabase
@@ -81,7 +81,7 @@ metadata:
   namespace: demaf
 spec:
   selector:
-    app: configurationsdatabase
+    app.kubernetes.io/name: configurationsdatabase
   ports:
     - protocol: TCP
       port: 5432

@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dockerplugin
+      app.kubernetes.io/name: dockerplugin
   template:
     metadata:
       name: dockerplugin
@@ -104,7 +104,7 @@ metadata:
   namespace: demaf
 spec:
   selector:
-    app: dockerplugin
+    app.kubernetes.io/name: dockerplugin
   ports:
     - protocol: TCP
       port: 8089

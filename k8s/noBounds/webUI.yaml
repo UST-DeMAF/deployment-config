@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: web-ui
+      app.kubernetes.io/name: web-ui
   template:
     metadata:
       name: web-ui
@@ -99,7 +99,7 @@ metadata:
   namespace: demaf
 spec:
   selector:
-    app: web-ui
+    app.kubernetes.io/name: web-ui
   ports:
     - name: frontend
       protocol: TCP

@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: helmplugin
+      app.kubernetes.io/name: helmplugin
   template:
     metadata:
       name: helmplugin
@@ -109,7 +109,7 @@ metadata:
   namespace: demaf
 spec:
   selector:
-    app: helmplugin
+    app.kubernetes.io/name: helmplugin
   ports:
     - protocol: TCP
       port: 8086

@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: terraformplugin
+      app.kubernetes.io/name: terraformplugin
   template:
     metadata:
       name: terraformplugin
@@ -109,7 +109,7 @@ metadata:
   namespace: demaf
 spec:
   selector:
-    app: terraformplugin
+    app.kubernetes.io/name: terraformplugin
   ports:
     - protocol: TCP
       port: 8084

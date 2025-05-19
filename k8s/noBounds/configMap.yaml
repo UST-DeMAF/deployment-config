@@ -4,8 +4,6 @@ metadata:
   name: demaf-config
   namespace: demaf
 data:
-  domain: "try.demaf.de"
-
   rabbitmq_username: "tad"
   rabbitmq_password: "tad"
   rabbitmq_host: "rabbitmq"
@@ -51,3 +49,6 @@ data:
   tf_plugin_run_provider_postprocessors: "true"
 
   helm_plugin_kube_output_directory: "/usr/share/helmTemplates"
+
+  webui_domain: "try.demaf.de"
+  webui_https: "true"

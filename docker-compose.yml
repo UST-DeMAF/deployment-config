@@ -15,44 +15,6 @@ volumes:
       device: ./winery
 
 services:
-
-# Web-UI
-  web-ui:
-    image: ghcr.io/ust-demaf/web-ui:latest
-    hostname: web-ui
-    container_name: web-ui
-    depends_on:
-      ansibleplugin:
-        condition: service_healthy
-      bashplugin:
-        condition: service_healthy
-      dockerplugin:
-        condition: service_healthy
-      helmplugin:
-        condition: service_healthy
-      kubernetesplugin:
-        condition: service_healthy
-      terraformplugin:
-        condition: service_healthy
-      visualizationservice:
-        condition: service_healthy
-      winery:
-        condition: service_healthy
-    restart: always
-    environment:
-      DEMAF_ANALYSIS_MANAGER_URL: http://analysismanager:8080
-      DEMAF_DOMAIN: localhost
-      DEMAF_WINERY_URL: http://winery:8080
-    volumes:
-      - demaf:/usr/share
-    ports:
-      - "80:80"
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:80/"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
   # Message Broker
   rabbitmq:
     image: rabbitmq:3.9-management
@@ -368,6 +330,44 @@ services:
       - 8082:8082
     healthcheck:
       test: [ "CMD-SHELL", "curl -fs http://localhost:8082/actuator/health | grep 'UP' || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+# Web-UI
+  web-ui:
+    image: ghcr.io/ust-demaf/web-ui:latest
+    hostname: web-ui
+    container_name: web-ui
+    depends_on:
+      ansibleplugin:
+        condition: service_healthy
+      bashplugin:
+        condition: service_healthy
+      dockerplugin:
+        condition: service_healthy
+      helmplugin:
+        condition: service_healthy
+      kubernetesplugin:
+        condition: service_healthy
+      terraformplugin:
+        condition: service_healthy
+      visualizationservice:
+        condition: service_healthy
+      winery:
+        condition: service_healthy
+    restart: always
+    environment:
+      DEMAF_ANALYSIS_MANAGER_URL: http://analysismanager:8080
+      DEMAF_DOMAIN: localhost
+      DEMAF_HTTPS: false
+      DEMAF_WINERY_URL: http://winery:8080
+    volumes:
+      - demaf:/usr/share
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:80/"]
       interval: 10s
       timeout: 5s
       retries: 3

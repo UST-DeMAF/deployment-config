@@ -1,13 +1,13 @@
-# Deployment and Service for tasks database
+# Deployment and Service definitions for the models database
 
-# tasksdatabase Deployment
+# modelsdatabase Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tasksdatabase
+  name: modelsdatabase
   namespace: demaf
   labels:
-    app.kubernetes.io/name: tasksdatabase
+    app.kubernetes.io/name: modelsdatabase
     app.kubernetes.io/version: v3.0.0
     app.kubernetes.io/component: database
     app.kubernetes.io/part-of: demaf
@@ -15,63 +15,64 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: tasksdatabase
+      app.kubernetes.io/name: modelsdatabase
   template:
     metadata:
-      name: tasksdatabase
+      name: modelsdatabase
       labels:
-        app.kubernetes.io/name: tasksdatabase
-        app.kubernetes.io/instance: tasksdatabase-pod
+        app.kubernetes.io/name: modelsdatabase
+        app.kubernetes.io/instance: modelsdatabase-pod
         app.kubernetes.io/version: v3.0.0
         app.kubernetes.io/component: database
         app.kubernetes.io/part-of: demaf
     spec:
       containers:
-        - name: tasksdatabase
-          image: postgres:17.5
+        - name: modelsdatabase
+          image: mongo:8.0.9
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 1
+              memory: 2Gi
+            limits:
+              cpu: 4
+              memory: 8Gi
           ports:
-            - containerPort: 5432
+            - containerPort: 27017
           env:
-            - name: POSTGRES_USER
+            - name: MONGO_INITDB_ROOT_USERNAME
               valueFrom:
                 configMapKeyRef:
                   name: demaf-config
-                  key: tasksdb_username
-            - name: POSTGRES_PASSWORD
+                  key: modelsdb_password
+            - name: MONGO_INITDB_ROOT_PASSWORD
               valueFrom:
                 configMapKeyRef:
                   name: demaf-config
-                  key: tasksdb_password
-            - name: POSTGRES_DB
-              valueFrom:
-                configMapKeyRef:
-                  name: demaf-config
-                  key: tasksdb_database
+                  key: modelsdb_password
           livenessProbe:
             exec:
               command:
-                - sh
-                - -c
-                - |
-                  pg_isready -U tad -d tasks
+                - mongosh
+                - --eval
+                - "db.adminCommand('ping')"
             initialDelaySeconds: 60
             failureThreshold: 3
             periodSeconds: 10
             timeoutSeconds: 15
-      hostname: tasksdatabase
+      hostname: modelsdatabase
       restartPolicy: Always
 ---
-# tasksdatabase Service
+# modelsdatabase Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: tasksdatabase
+  name: modelsdatabase
   namespace: demaf
 spec:
   selector:
-    app.kubernetes.io/name: tasksdatabase
+    app.kubernetes.io/name: modelsdatabase
   ports:
     - protocol: TCP
-      port: 5432
-      targetPort: 5432
+      port: 27017
+      targetPort: 27017

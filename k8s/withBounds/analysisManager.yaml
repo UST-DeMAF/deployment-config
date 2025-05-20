@@ -1,0 +1,143 @@
+# Deployment, Service and Ingress for the analysis manager
+
+# analysismanager Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analysismanager
+  namespace: demaf
+  labels:
+    app.kubernetes.io/name: analysismanager
+    app.kubernetes.io/version: v3.0.0
+    app.kubernetes.io/component: manager
+    app.kubernetes.io/part-of: demaf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: analysismanager
+  template:
+    metadata:
+      name: analysismanager
+      labels:
+        app.kubernetes.io/name: analysismanager
+        app.kubernetes.io/instance: analysismanager-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: manager
+        app.kubernetes.io/part-of: demaf
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-5
+      initContainers:
+        # Init container waiting for the dependencies to be available before starting the main container
+        - name: depends-on
+          image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 10m
+              memory: 5Mi
+            limits:
+              cpu: 50m
+              memory: 10Mi
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z rabbitmq 5672 && nc -z configurationsdatabase 5432 && nc -z tasksdatabase 5432; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
+        # Init container creating the necessary directories in the mounted volume
+        - name: populate-demaf-pvc
+          image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 50m
+              memory: 50Mi
+            limits:
+              cpu: 200m
+              memory: 200Mi
+          command:
+            [
+              "sh",
+              "-c",
+              "mkdir -p /mnt/demaf/helmTemplates /mnt/demaf/tadms"
+            ]
+          volumeMounts:
+            - name: demaf
+              mountPath: /mnt/demaf
+      containers:
+        - name: analysismanager
+          image: ghcr.io/ust-demaf/analysis-manager:testing
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 2
+              memory: 2Gi
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_APPLICATION_JSON
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: analysismanager_spring_json
+            - name: SPRING_RABBITMQ_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-default-user
+                  key: host
+            - name: SPRING_RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-default-user
+                  key: username
+            - name: SPRING_RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-default-user
+                  key: password
+            - name: LOGGING_LEVEL_ROOT
+              value: DEBUG
+            - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
+              value: DEBUG
+            - name: LOGGING_LEVEL_
+              value: DEBUG
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 15
+      hostname: analysismanager
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+---
+# analysismanager Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: analysismanager
+  namespace: demaf
+spec:
+  selector:
+    app.kubernetes.io/name: analysismanager
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

@@ -30,6 +30,13 @@ spec:
         - name: configurationsdatabase
           image: postgres:17.5
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 1
+              memory: 2Gi
+            limits:
+              cpu: 4
+              memory: 8Gi
           ports:
             - containerPort: 5432
           env:

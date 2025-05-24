@@ -50,3 +50,5 @@ data:
 
   webui_domain: "try.demaf.de"
   webui_https: "true"
+  webui_cron_schedule: "0 */12 * * *"
+  webui_retention_minutes: "1440"

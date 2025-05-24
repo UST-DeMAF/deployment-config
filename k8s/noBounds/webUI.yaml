@@ -55,6 +55,8 @@ spec:
           volumeMounts:
             - name: demaf
               mountPath: /usr/share
+            - name: winery
+              mountPath: /var/repository
           env:
             - name: DEMAF_ANALYSIS_MANAGER_URL
               valueFrom:
@@ -76,6 +78,16 @@ spec:
                 configMapKeyRef:
                   name: demaf-config
                   key: winery_url
+            - name: CRON_SCHEDULE
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: webui_cron_schedule
+            - name: DEMAF_FILE_RETENTION
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: webui_retention_minutes
           livenessProbe:
             httpGet:
               path: /
@@ -90,6 +102,9 @@ spec:
         - name: demaf
           persistentVolumeClaim:
             claimName: demaf-pvc
+        - name: winery
+          persistentVolumeClaim:
+            claimName: winery-pvc
 ---
 # web-ui Service
 apiVersion: v1

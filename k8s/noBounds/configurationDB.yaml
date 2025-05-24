@@ -1,0 +1,77 @@
+# Deployment and Service for configurations database
+
+# configurationsdatabase Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configurationsdatabase
+  namespace: demaf
+  labels:
+    app.kubernetes.io/name: configurationsdatabase
+    app.kubernetes.io/version: v3.0.0
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: demaf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: configurationsdatabase
+  template:
+    metadata:
+      name: configurationsdatabase
+      labels:
+        app.kubernetes.io/name: configurationsdatabase
+        app.kubernetes.io/instance: configurationsdatabase-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: database
+        app.kubernetes.io/part-of: demaf
+    spec:
+      containers:
+        - name: configurationsdatabase
+          image: postgres:17.5
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: configurationsdb_username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: configurationsdb_password
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: configurationsdb_database
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - |
+                  pg_isready -U tad -d configurations
+            initialDelaySeconds: 60
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 15
+      hostname: configurationsdatabase
+      restartPolicy: Always
+---
+# configurationsdatabase Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: configurationsdatabase
+  namespace: demaf
+spec:
+  selector:
+    app.kubernetes.io/name: configurationsdatabase
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

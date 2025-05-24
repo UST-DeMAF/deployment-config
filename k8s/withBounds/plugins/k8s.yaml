@@ -1,0 +1,125 @@
+# Deployment and Service for the Kubernetes plugin
+
+# kubernetesplugin Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernetesplugin
+  namespace: demaf
+  labels:
+    app.kubernetes.io/name: kubernetesplugin
+    app.kubernetes.io/version: v3.0.0
+    app.kubernetes.io/component: mps-plugin
+    app.kubernetes.io/part-of: demaf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kubernetesplugin
+  template:
+    metadata:
+      name: kubernetesplugin
+      labels:
+        app.kubernetes.io/name: kubernetesplugin
+        app.kubernetes.io/instance: kubernetesplugin-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: mps-plugin
+        app.kubernetes.io/part-of: demaf
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-cluster3-5
+      initContainers:
+        # Init container waiting for the dependencies to be available before starting the main container
+        - name: depends-on
+          image: busybox:1.37
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 10m
+              memory: 5Mi
+            limits:
+              cpu: 50m
+              memory: 10Mi
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z analysismanager 8080 && nc -z rabbitmq 5672; do echo 'waiting for dependencies'; sleep 5; done;",
+            ]
+      containers:
+        - name: kubernetesplugin
+          image: ghcr.io/ust-demaf/kubernetes-mps-plugin:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2
+              memory: 4Gi
+          ports:
+            - containerPort: 8085
+          volumeMounts:
+            - name: demaf
+              mountPath: /usr/share
+          env:
+            - name: ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: analysismanager_plugin_registration_url
+            - name: MODELS_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: modelsservice_url
+            - name: SPRING_RABBITMQ_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-default-user
+                  key: host
+            - name: SPRING_RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-default-user
+                  key: username
+            - name: SPRING_RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-default-user
+                  key: password
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 60
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 15
+      hostname: kubernetesplugin
+      restartPolicy: Always
+      volumes:
+        - name: demaf
+          persistentVolumeClaim:
+            claimName: demaf-pvc
+---
+# kubernetesplugin Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubernetesplugin
+  namespace: demaf
+spec:
+  selector:
+    app.kubernetes.io/name: kubernetesplugin
+  ports:
+    - protocol: TCP
+      port: 8085
+      targetPort: 8085

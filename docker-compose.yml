@@ -358,12 +358,15 @@ services:
         condition: service_healthy
     restart: always
     environment:
+      CRON_SCHEDULE: "*/5 * * * *"
       DEMAF_ANALYSIS_MANAGER_URL: http://analysismanager:8080
       DEMAF_DOMAIN: localhost
       DEMAF_HTTPS: false
+      DEMAF_FILE_RETENTION: 120
       DEMAF_WINERY_URL: http://winery:8080
     volumes:
       - demaf:/usr/share
+      - winery:/var/repository
     ports:
       - "80:80"
     healthcheck:

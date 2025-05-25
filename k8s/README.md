@@ -2,11 +2,11 @@
 
 ## Features
 
-* *all* features a locally deployed version of the DeMAF would have (using Docker compose)
-* *two* versions: with and without memory and CPU boundaries (requests and limits).
+* *All* features a locally deployed version of the DeMAF would have (using Docker compose)
+* *Two* versions: with and without memory and CPU boundaries (requests and limits).
 These are based on research for widely used services like our DBs and meassurements taken from a local run using Docker Compose
-* *two* PersistantVolumeClaims using the cluster's vSphere default StorageClass
-* *RabbitMQ Cluster Kubernetes Operator* (<https://www.rabbitmq.com/kubernetes/operator/operator-overview>)  
+* *Two* PersistantVolumeClaims using the cluster's vSphere default StorageClass
+* *RabbitMQ Cluster Kubernetes Operator* (<https://www.rabbitmq.com/kubernetes/operator/operator-overview>)
   which uses a new `kind` to deploy a full, cluster-wide RabbitMQ resource with a PersistentVolume, StatefulSet, Services for both nodes and management and Pods.
 
 ## Issues

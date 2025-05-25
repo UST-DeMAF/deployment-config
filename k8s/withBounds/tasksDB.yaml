@@ -1,0 +1,84 @@
+# Deployment and Service for tasks database
+
+# tasksdatabase Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasksdatabase
+  namespace: demaf
+  labels:
+    app.kubernetes.io/name: tasksdatabase
+    app.kubernetes.io/version: v3.0.0
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: demaf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tasksdatabase
+  template:
+    metadata:
+      name: tasksdatabase
+      labels:
+        app.kubernetes.io/name: tasksdatabase
+        app.kubernetes.io/instance: tasksdatabase-pod
+        app.kubernetes.io/version: v3.0.0
+        app.kubernetes.io/component: database
+        app.kubernetes.io/part-of: demaf
+    spec:
+      containers:
+        - name: tasksdatabase
+          image: postgres:17.5
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          resources:
+            requests:
+              cpu: 1
+              memory: 2Gi
+            limits:
+              cpu: 4
+              memory: 8Gi
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: tasksdb_username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: tasksdb_password
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: demaf-config
+                  key: tasksdb_database
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - |
+                  pg_isready -U tad -d tasks
+            initialDelaySeconds: 60
+            failureThreshold: 3
+            periodSeconds: 10
+            timeoutSeconds: 15
+      hostname: tasksdatabase
+      restartPolicy: Always
+---
+# tasksdatabase Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: tasksdatabase
+  namespace: demaf
+spec:
+  selector:
+    app.kubernetes.io/name: tasksdatabase
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

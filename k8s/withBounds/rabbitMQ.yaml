@@ -1,0 +1,27 @@
+# Deployment and Service definitions for the RabbitMQ
+
+# This uses the RabbitMQ Cluster Operator to manage RabbitMQ clusters in Kubernetes.
+# See https://www.rabbitmq.com/kubernetes/operator/operator-overview for more details.
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: rabbitmq
+  namespace: demaf
+  labels:
+    app.kubernetes.io/name: rabbitmq-cluster-operator
+    app.kubernetes.io/version: v3.0.0
+    app.kubernetes.io/component: rabbitmq-operator
+    app.kubernetes.io/part-of: demaf
+spec:
+  replicas: 3
+  persistence:
+    storageClassName: vsphere-default
+    storage: 10Gi
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1.5Gi
+    limits:
+      cpu: 2
+      memory: 4Gi
+  

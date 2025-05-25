@@ -48,7 +48,7 @@ spec:
             ]
       containers:
         - name: web-ui
-          image: ghcr.io/ust-demaf/web-ui:testing
+          image: ghcr.io/ust-demaf/web-ui:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80

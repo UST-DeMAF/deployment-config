@@ -75,7 +75,7 @@ spec:
               mountPath: /mnt/demaf
       containers:
         - name: analysismanager
-          image: ghcr.io/ust-demaf/analysis-manager:testing
+          image: ghcr.io/ust-demaf/analysis-manager:latest
           imagePullPolicy: Always
           resources:
             requests:

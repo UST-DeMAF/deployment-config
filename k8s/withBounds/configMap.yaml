@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demaf-config
+  namespace: demaf
+  labels:
+    app.kubernetes.io/name: demaf-config
+    app.kubernetes.io/version: v3.0.0
+    app.kubernetes.io/component: config
+    app.kubernetes.io/part-of: demaf
+data:
+  modelsdb_username: "tad"
+  modelsdb_password: "tad"
+  modelsdb_database: "modelsdatabase"
+  modelsdb_host: "modelsdatabase"
+  modelsdb_port: "27017"
+
+  configurationsdb_username: "tad"
+  configurationsdb_password: "tad"
+  configurationsdb_database: "configurations"
+
+  tasksdb_username: "tad"
+  tasksdb_password: "tad"
+  tasksdb_database: "tasks"
+
+  analysismanager_spring_json: '{
+                "spring.configurations-datasource.jdbcUrl": "jdbc:postgresql://configurationsdatabase:5432/configurations",
+                "spring.configurations-datasource.username": "tad",
+                "spring.configurations-datasource.password": "tad",
+                "spring.tasks-datasource.jdbcUrl": "jdbc:postgresql://tasksdatabase:5432/tasks",
+                "spring.tasks-datasource.username": "tad",
+                "spring.tasks-datasource.password": "tad",
+                "models-service.url": "http://modelsservice:8081"
+                }'
+  analysismanager_url: "http://analysismanager:8080"
+  analysismanager_plugin_registration_url: "http://analysismanager:8080/plugin-registration"
+
+  modelsservice_tadm_output_directory: "/usr/share/tadms"
+  modelsservice_url: "http://modelsservice:8081"
+
+  winery_url: "http://winery:8079"
+  winery_public_hostname: "localhost"
+  winery_feature_radon: "true"
+  winery_repository_provider: "yaml"
+  winery_path: "/var/repository"
+
+  tf_plugin_run_provider_postprocessors: "true"
+
+  helm_plugin_kube_output_directory: "/usr/share/helmTemplates"
+
+  webui_domain: "try.demaf.de"
+  webui_https: "true"
+  webui_cron_schedule: "0 */12 * * *"
+  webui_retention_minutes: "1440"

@@ -1,5 +1,5 @@
 volumes:
-  demaf: 
+  demaf:
     driver: local
     driver_opts:
       type: 'none'
@@ -15,40 +15,6 @@ volumes:
       device: ./winery
 
 services:
-  web-ui:
-    image: ghcr.io/ust-demaf/web-ui:latest
-#    build: ../web-ui #Build locally
-    hostname: web-ui
-    container_name: web-ui
-    depends_on:
-      ansibleplugin:
-        condition: service_healthy
-      bashplugin:
-        condition: service_healthy
-      dockerplugin:
-        condition: service_healthy
-      helmplugin:
-        condition: service_healthy
-      kubernetesplugin:
-        condition: service_healthy
-      terraformplugin:
-        condition: service_healthy
-      visualizationservice:
-        condition: service_healthy
-      winery:
-        condition: service_healthy
-    restart: always
-    volumes:
-      - demaf:/usr/share
-    ports:
-      - "8079:8079"
-      - "3000:3000"
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8079/"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
   # Message Broker
   rabbitmq:
     image: rabbitmq:3.9-management
@@ -179,7 +145,7 @@ services:
   # Eclipse Winery
   winery:
     container_name: winery
-    image: opentosca/radon-gmt:latest
+    image: opentosca/winery:v3.0.9-M1
     environment:
       PUBLIC_HOSTNAME: "localhost"
       WINERY_FEATURE_RADON: "true"
@@ -187,13 +153,13 @@ services:
     volumes:
       - winery:/var/repository
     ports:
-      - 80:8080
+      - 8079:8080
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/"]
       interval: 10s
       timeout: 5s
       retries: 3
-  
+
   # Plugins
   bashplugin:
     image: ghcr.io/ust-demaf/bash-plugin:latest
@@ -364,6 +330,47 @@ services:
       - 8082:8082
     healthcheck:
       test: [ "CMD-SHELL", "curl -fs http://localhost:8082/actuator/health | grep 'UP' || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+# Web-UI
+  web-ui:
+    image: ghcr.io/ust-demaf/web-ui:latest
+    hostname: web-ui
+    container_name: web-ui
+    depends_on:
+      ansibleplugin:
+        condition: service_healthy
+      bashplugin:
+        condition: service_healthy
+      dockerplugin:
+        condition: service_healthy
+      helmplugin:
+        condition: service_healthy
+      kubernetesplugin:
+        condition: service_healthy
+      terraformplugin:
+        condition: service_healthy
+      visualizationservice:
+        condition: service_healthy
+      winery:
+        condition: service_healthy
+    restart: always
+    environment:
+      CRON_SCHEDULE: "*/5 * * * *"
+      DEMAF_ANALYSIS_MANAGER_URL: http://analysismanager:8080
+      DEMAF_DOMAIN: localhost
+      DEMAF_HTTPS: false
+      DEMAF_FILE_RETENTION: 120
+      DEMAF_WINERY_URL: http://winery:8080
+    volumes:
+      - demaf:/usr/share
+      - winery:/var/repository
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:80/"]
       interval: 10s
       timeout: 5s
       retries: 3

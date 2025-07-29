@@ -9,6 +9,7 @@
 !/volume/tadms/README.md
 
 /winery/graphviz/**
+/winery/admin/**
 /winery/artifacttypes/**
 !/winery/artifacttypes/tosca.artifacts/
 !/winery/artifacttypes/tosca.artifacts.Deployment/
@@ -21,5 +22,7 @@
 !/winery/nodetypes/tosca.nodes.Storage/
 /winery/servicetemplates/**
 !/winery/servicetemplates/.gitkeep
+
+images.tar
 
 .DS_Store

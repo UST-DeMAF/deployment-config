@@ -184,6 +184,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 180s
 
   terraformplugin:
     image: ghcr.io/ust-demaf/terraform-mps-plugin:latest
@@ -209,6 +210,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 180s
 
   kubernetesplugin:
     image: ghcr.io/ust-demaf/kubernetes-mps-plugin:latest
@@ -233,6 +235,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 180s
 
   helmplugin:
     image: ghcr.io/ust-demaf/helm-plugin:latest
@@ -259,6 +262,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 180s
 
   ansibleplugin:
     image: ghcr.io/ust-demaf/ansible-mps-plugin:latest
@@ -283,6 +287,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 180s
 
   dockerplugin:
     image: ghcr.io/ust-demaf/docker-plugin:latest
@@ -307,6 +312,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 180s
 
   cdkplugin:
     image: ghcr.io/ust-demaf/cdk-mps-plugin:latest
@@ -332,6 +338,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 180s
 
   visualizationservice:
     image: ghcr.io/ust-demaf/visualization-service:latest
@@ -358,6 +365,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+      start_period: 180s
 
 # Web-UI
   web-ui:

@@ -8,16 +8,16 @@ Installation of Docker and Docker Compose are required, see <https://docs.docker
 
 ## Deploy Locally
 
-The DeMAF can be deployed on the local machine by executing
+The DeMAF can be deployed on the local machine with [Docker Compose](https://docs.docker.com/compose/) v2 or later by executing
 
 ```shell
-docker-compose pull && docker-compose up -d
+docker compose pull && docker compose up -d
 ```
 
 Shutdown with
 
 ```shell
-docker-compose down
+docker compose down
 ```
 
 ## Deploy on Kubernetes Cluster
@@ -92,6 +92,6 @@ The DeMAF outputs the generated technology-agnostic deployment model under `./vo
 
 * Go to the volume folder
 * Clone the Example Deployment Model: ```git clone git@github.com:Well5a/kube.git```
-* Go back to the base directory and start the DeMAF: ```docker-compose pull && docker-compose up -d```
+* Go back to the base directory and start the DeMAF: ```docker compose pull && docker compose up -d```
 * Start the [DeMAF Shell](https://github.com/UST-DeMAF/demaf-shell)
 * In the DeMAF Shell, execute the command ```transform --location file:/usr/share/kube/azure-start.sh --technology bash --commands ./azure-start.sh```

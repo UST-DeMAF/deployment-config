@@ -200,7 +200,7 @@ services:
       ANALYSIS_MANAGER_PLUGIN_REGISTRATION_URL: http://analysismanager:8080/plugin-registration
       MODELS_SERVICE_URL: http://modelsservice:8081
       SPRING_RABBITMQ_HOST: rabbitmq
-      RUNPROVIDERPOSTPROCESSORS: true # default true
+      RUNPROVIDERPOSTPROCESSORS: "true" # default true
     volumes:
       - demaf:/usr/share
     ports:
@@ -394,7 +394,7 @@ services:
       CRON_SCHEDULE: "*/5 * * * *"
       DEMAF_ANALYSIS_MANAGER_URL: http://analysismanager:8080
       DEMAF_DOMAIN: localhost
-      DEMAF_HTTPS: false
+      DEMAF_HTTPS: "false"
       DEMAF_FILE_RETENTION: 120
       DEMAF_WINERY_URL: http://winery:8080
     volumes:
